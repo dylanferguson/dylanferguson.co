@@ -10,9 +10,10 @@ A small shoal on the web since 2013, forever a work in progress
 
 ## Development
 
-Node.js 24+ and [pnpm](https://pnpm.io/).
+[mise](https://mise.jdx.dev/) pins Node.js 24. [pnpm](https://pnpm.io/) is the package manager.
 
 ```sh
+mise install
 pnpm install
 pnpm dev
 ```
