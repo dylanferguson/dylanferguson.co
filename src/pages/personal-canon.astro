@@ -1,0 +1,32 @@
+---
+import { getCollection } from "astro:content";
+
+import CanonEntry from "../components/canon/CanonEntry.astro";
+import CanonLayout from "../layouts/CanonLayout.astro";
+
+const description =
+  "Words and works that I want to internalise, and that I try to come back to regularly.";
+const entries = (await getCollection("personal-canon")).toSorted((a, b) =>
+  a.data.added.localeCompare(b.data.added),
+);
+---
+
+<CanonLayout
+  title="Personal canon"
+  description={description}
+  excerptHint="Saved passages can be toggled via the bullet points."
+  noindex
+>
+  <ul class="pl-marker">
+    {
+      entries.map((entry) => (
+        <CanonEntry
+          title={entry.data.title}
+          author={entry.data.author}
+          url={entry.data.url}
+          excerpts={entry.data.excerpts}
+        />
+      ))
+    }
+  </ul>
+</CanonLayout>

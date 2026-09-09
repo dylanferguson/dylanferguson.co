@@ -1,0 +1,34 @@
+---
+import CanonPassage from "./CanonPassage.astro";
+
+interface Props {
+  author?: string;
+  excerpts?: string[];
+  published?: string;
+  publishedApproximate?: boolean;
+  title: string;
+  url: string;
+}
+
+const {
+  author,
+  excerpts,
+  published,
+  publishedApproximate = false,
+  title,
+  url,
+} = Astro.props;
+---
+
+<li class="relative mt-1.5 pl-1 first:mt-0">
+  <article>
+    <div class="text-lg font-normal">
+      <a class="font-medium" href={url}>{title}</a>
+      {/* Spaced en dash, matching the date ranges in data/resume.json5. An
+          em dash here would want to be set closed, which crowds the title. */}
+      {author && <span class="text-muted"> – {author}</span>}
+      {published && <span class="text-sm text-faint"> {"("}{publishedApproximate ? "c. " : ""}{published.slice(0, 4)})</span>}
+      {excerpts && <CanonPassage title={title} excerpts={excerpts} />}
+    </div>
+  </article>
+</li>

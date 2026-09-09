@@ -1,0 +1,57 @@
+/*
+	Content-Security-Policy: base-uri 'self'; form-action 'none'; frame-ancestors 'self'; object-src 'none'
+	Content-Signal: search=yes, ai-input=yes, ai-train=no
+	X-Content-Type-Options: nosniff
+	X-Frame-Options: SAMEORIGIN
+	Referrer-Policy: strict-origin-when-cross-origin
+
+# Cache-Control is deliberately absent from /* above. HTML keeps the Workers
+# Assets default (public, max-age=0, must-revalidate) so a deploy is live on the
+# next request, and leaving the rules below non-overlapping means no path ever
+# matches two Cache-Control lines.
+
+# Astro fingerprints these, so the URL changes whenever the bytes do.
+/_astro/*
+	Cache-Control: public, max-age=31536000, immutable
+
+# Subset fonts are byte-stable, but the names are NOT fingerprinted: regenerating
+# a subset means renaming the file, or old browsers keep the stale copy for a year.
+/fonts/*
+	Cache-Control: public, max-age=31536000, immutable
+
+# Unfingerprinted and swapped occasionally, so a week rather than immutable.
+/favicon.ico
+	Cache-Control: public, max-age=604800
+/favicon-32x32.png
+	Cache-Control: public, max-age=604800
+/favicon-192x192.png
+	Cache-Control: public, max-age=604800
+/apple-touch-icon.png
+	Cache-Control: public, max-age=604800
+
+# Shared as a stable URL and updated in place, so keep it fresh.
+# `inline` keeps the browser previewing it rather than dropping it straight into
+# downloads; the filename is what the save names it. That covers the paths the
+# download attribute on /resume/ never sees — someone opening the shared URL, or
+# saving from the browser's own PDF viewer. Keep the name in step with
+# src/pages/resume.astro. ASCII only: anything else needs the filename*= form.
+/resume.pdf
+	Cache-Control: public, max-age=3600, stale-while-revalidate=86400
+	Content-Disposition: inline; filename="Dylan Ferguson - Resume.pdf"
+
+# https://x.com/thingskatedid/status/1278274012754309120
+/
+	x-moomin0: ⠀⠀⠀⠀⠀⠀⠀⢠⢦⡀⠀⡰⣩⠃⠀⠀⠀⠀⠀⠀⠀⠀⠀
+	x-moomin1: ⠀⠀⠀⠀⠀⠀⠀⠘⣄⠙⠍⠁⠙⠦⡀⠀⠀⠀⠀⠀⠀⠀⠀
+	x-moomin2: ⠀⠀⠀⠀⠀⠀⠀⠀⡎⠀⠀⡠⠄⠔⠊⠉⠒⠒⠒⢄⠀⠀⠀
+	x-moomin3: ⠀⠀⠀⠀⠀⠀⠀⢀⠇⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢈⠆⠀⠀
+	x-moomin4: ⠀⠀⢠⢤⠜⡆⠀⢸⠀⠰⣄⠀⠀⠀⠀⠀⠀⠀⣠⠎⠀⠀⠀
+	x-moomin5: ⠀⠀⠱⠤⡁⠈⠑⠇⠀⠀⠀⠉⠒⠤⠤⠄⢖⠊⠀⡐⠧⣄⣀
+	x-moomin6: ⠀⠀⠀⠀⠘⢆⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠹⡉⠀⣀⣨⡷
+	x-moomin7: ⠀⠀⠀⠀⠀⠈⡇⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢱⠜⠁⠀⠀
+	x-moomin8: ⠀⠀⠀⠀⠀⠀⢇⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠸⣸⠱⡀⠀
+	x-moomin9: ⠀⠀⠀⠀⠀⠀⠸⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠸⠁⠀⣣⠀
+	x-moominA: ⠀⠀⠀⠀⠀⠀⠀⠑⣄⠀⠀⠀⠀⠀⠀⠀⢀⣠⣀⠴⠊⠁⠀
+	x-moominB: ⠰⢍⢒⢄⠀⠀⠀⠀⢸⢳⢆⠀⠀⠀⠰⡖⠋⠁⠀⠀⠀⠀⠀
+	x-moominC: ⠀⠳⠴⣙⢄⠀⢀⡠⣣⠃⠈⠑⢤⡄⠀⡸⠂⠀⠀⠀⠀⠀⠀
+	x-moominD: ⠀⠀⠀⠀⠑⠋⠓⠊⠁⠀⠀⠀⠓⠒⠉⠀⠀⠀⠀⠀⠀⠀⠀

@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+# Installed by the `prepare` script in package.json, which points
+# core.hooksPath at this directory. Skip a run with `git commit --no-verify`.
+exec pnpm verify

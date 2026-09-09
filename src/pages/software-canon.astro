@@ -1,0 +1,59 @@
+---
+import { getCollection } from "astro:content";
+
+import CanonEntry from "../components/canon/CanonEntry.astro";
+import CanonLayout from "../layouts/CanonLayout.astro";
+
+const description =
+  "Writing and talks about software that influenced my thinking, and that I try to come back to regularly.";
+const entries = (await getCollection("software-canon")).toSorted((a, b) =>
+  a.data.added.localeCompare(b.data.added),
+);
+const categories = [
+  { label: "Books", type: "book" },
+  { label: "Papers", type: "paper" },
+  { label: "Essays", type: "link" },
+  { label: "Talks", type: "talk" },
+];
+---
+
+<CanonLayout
+  title="Software canon"
+  description={description}
+  excerptHint="Small excerpts from the pieces can be toggled via the bullet points."
+>
+  {/* The pill hangs in the left margin. When that margin is narrower
+      than the pill, the list shifts right so the label stays on-page.
+      Below 900px it sits above the list. */}
+  {
+    categories.map((category) => (
+      <section
+        class="relative mt-8 ml-[max(0px,calc(var(--spacing-pill-gutter)-(100vw-100%)/2))] first:mt-0 max-lg:ml-0"
+        aria-labelledby={`category-${category.type}`}
+      >
+        <h2
+          class="absolute top-0.5 right-[calc(100%_+_0.5rem)] text-2xs font-medium tracking-[0.03em] whitespace-nowrap uppercase max-lg:static max-lg:mb-2 max-lg:text-xs"
+          id={`category-${category.type}`}
+        >
+          <span class="inline-block rounded-full border border-faint px-1.5 py-1 text-faint">
+            {category.label}
+          </span>
+        </h2>
+        <ul class="pl-marker">
+          {entries
+            .filter((entry) => entry.data.type === category.type)
+            .map((entry) => (
+              <CanonEntry
+                title={entry.data.title}
+                author={entry.data.display_author ?? entry.data.author}
+                url={entry.data.url}
+                published={entry.data.published}
+                publishedApproximate={entry.data.published_approximate}
+                excerpts={entry.data.excerpts}
+              />
+            ))}
+        </ul>
+      </section>
+    ))
+  }
+</CanonLayout>

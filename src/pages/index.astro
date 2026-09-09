@@ -1,0 +1,122 @@
+---
+import Orb from "../components/Orb.astro";
+import Layout from "../layouts/Layout.astro";
+---
+
+<Layout
+  title="Dylan Ferguson"
+  description="Dylan Ferguson — software engineer, remote."
+  ogDescription="Software engineer, remote."
+  bodyClass="h-full [-webkit-tap-highlight-color:transparent]"
+>
+  <!--
+       ________
+      < Hello! >
+       --------
+              \   ^__^
+               \  (oo)\_______
+                  (__)\       )\/\
+                      ||----w |
+                      ||     ||
+      -->
+  <main class="grid h-full place-items-center">
+    <Orb />
+    {/* Clears the fixed header, so this offset tracks the header's height
+        rather than the spacing scale. */}
+    <div
+      class="hud fixed top-[max(61px,calc(env(safe-area-inset-top)_+_37px))] left-page-left z-2"
+    >
+      <p class="mb-1.5 text-lg text-muted">
+        Software Engineer, remote · Australia
+      </p>
+      <p class="text-lg text-muted">
+        <a href="https://github.com/dylanferguson">GitHub</a>{" "}
+        <span aria-hidden="true">·</span>{" "}
+        <a href="https://www.linkedin.com/in/dylanbferguson/">LinkedIn</a>{" "}
+        <span aria-hidden="true">·</span>{" "}
+        <a href="mailto:hello@dylanferguson.co">hello@dylanferguson.co</a>
+      </p>
+    </div>
+  </main>
+  <!-- Other small-batch taglines:
+    Single-origin web pages since 2013
+    Small-batch markup since 2013
+    Responsibly sourced hyperlinks since 2013
+  -->
+  <footer
+    class="fixed bottom-page-bottom left-page-left z-3 text-md text-faint"
+  >
+    A small shoal on the web since 2013 · built with{" "}
+    <a href="https://astro.build/">Astro</a> · set in{" "}
+    <a href="https://www.ibm.com/plex/">IBM Plex Sans</a>
+  </footer>
+</Layout>
+
+<style is:global>
+  html:root {
+    --scrim-solid: rgba(245, 245, 242, 0.97);
+    --scrim-middle: rgba(245, 245, 242, 0.78);
+  }
+
+  /* Dark mode here is a tuned "void": pure black, and muted lifted for
+     legibility against it. Only the two tokens that actually deviate are
+     restated — the rest of the palette still comes from global.css. */
+  @media (prefers-color-scheme: dark) {
+    html:root {
+      --color-background: #000;
+      --color-muted: rgba(255, 255, 255, 0.72);
+      --scrim-solid: rgba(0, 0, 0, 0.97);
+      --scrim-middle: rgba(0, 0, 0, 0.75);
+    }
+  }
+
+  html {
+    height: 100%;
+  }
+</style>
+
+<style>
+  /* Scrim: a soft dark pool behind the HUD so the field never obscures
+     the text. Extends well past the type and fades to nothing, so there's
+     no visible edge — it sits above the cells but below the text. */
+  .hud::before {
+    content: "";
+    position: absolute;
+    z-index: -1;
+    inset: -36px -104px -36px -36px;
+    background: radial-gradient(
+      120% 135% at 20% 34%,
+      var(--scrim-solid),
+      var(--scrim-middle) 46%,
+      transparent 74%
+    );
+    pointer-events: none;
+  }
+
+  /* HUD lines settle in just after the orb, top to bottom */
+  .hud p {
+    animation: rise 0.5s cubic-bezier(0.16, 1, 0.3, 1) backwards;
+    animation-delay: 0.08s;
+  }
+
+  .hud p:last-child {
+    animation-delay: 0.16s;
+  }
+
+  @keyframes rise {
+    from {
+      opacity: 0;
+      transform: translateY(6px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .hud p {
+      animation: none;
+    }
+  }
+</style>

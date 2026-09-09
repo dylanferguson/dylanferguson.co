@@ -1,0 +1,301 @@
+@import "tailwindcss";
+/* Tailwind scans the whole project by default, so build scripts get read for
+   class names too. Nothing in scripts/ ships to the browser, and a stray
+   class-like token there would leak real rules into this bundle — adding a file
+   changes the emitted asset name even when it contributes no CSS, which breaks
+   the committed .resume-stamp. */
+@source not "../../scripts";
+
+/* IBM Plex — SIL OFL, https://github.com/IBM/plex
+   The latin subsets Google Fonts serves, saved rather than linked. Replace
+   them from the same source so the roman and italic stay one build:
+   fonts.googleapis.com/css2?family=IBM+Plex+Sans:ital,wght@0,100..700;1,100..700
+
+   The italic is a real one. Without it the browser would shear the upright
+   into a fake oblique, which is not the same shape — Plex draws a true
+   italic 'a' and 'f'. It is not preloaded: body copy is upright, so the
+   italic only loads on the pages that actually mark something up. */
+@font-face {
+  font-family: "IBM Plex Sans";
+  font-style: normal;
+  font-weight: 100 700;
+  font-display: swap;
+  src: url("/fonts/ibm-plex-sans-latin.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: "IBM Plex Sans";
+  font-style: italic;
+  font-weight: 100 700;
+  font-display: swap;
+  src: url("/fonts/ibm-plex-sans-latin-italic.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: "IBM Plex Mono";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("/fonts/ibm-plex-mono-latin-400.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: "IBM Plex Mono";
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("/fonts/ibm-plex-mono-latin-600.woff2") format("woff2");
+}
+
+/* Design tokens. Every page pulls colour, type and spacing from here —
+   pages override token *values* for a local mood, but never introduce a
+   second vocabulary. Clearing Tailwind's own palette, type scale and
+   breakpoints is what keeps that promise: `bg-red-500` does not exist. */
+@theme {
+  --color-*: initial;
+  --font-*: initial;
+  --text-*: initial;
+  --breakpoint-*: initial;
+
+  /* Colour. Dark, narrow and print re-declare these values below. */
+  --color-background: #f7f7f5;
+  --color-text: #181818;
+  --color-muted: rgba(24, 24, 24, 0.66);
+  --color-faint: rgba(24, 24, 24, 0.6);
+  --color-line: #dcdee2;
+  --color-hover: rgba(24, 24, 24, 0.06);
+
+  /* Type. Each size carries a default leading so `text-xl` is enough;
+     compact labels still override with `/4` and `/5`. Display sizes
+     sit tighter, and 2xl/4xl carry the tight tracking those titles use.
+
+     `lg` is the reading size and sits a step above the 16px browser
+     default, because IBM Plex Sans runs small for its point size and the
+     body copy is set in muted grey. Everything else steps off that: `md`
+     and `sm` for the meta lines, and a 12px floor at `2xs` — small enough
+     to read as a label, but still comfortable. Sizes stay in rem so the
+     whole scale rides the browser's own font size (WCAG 1.4.4).
+
+     Reading leading is 1.45 rather than the web's habitual 1.5, which is the
+     top of Butterick's 120–145% range. Display sizes tighten from there. */
+  --text-2xs: 0.75rem; /* 12px */
+  --text-2xs--line-height: 1;
+  --text-xs: 0.8125rem; /* 13px */
+  --text-xs--line-height: 1.4;
+  --text-sm: 0.875rem; /* 14px */
+  --text-sm--line-height: 1.45;
+  --text-md: 0.9375rem; /* 15px */
+  --text-md--line-height: 1.45;
+  --text-lg: 1.0625rem; /* 17px */
+  --text-lg--line-height: 1.45;
+  --text-xl: 1.1875rem; /* 19px */
+  --text-xl--line-height: 1.45;
+  --text-2xl: 1.5rem; /* 24px */
+  --text-2xl--line-height: 1.35;
+  --text-2xl--letter-spacing: var(--tracking-tight);
+  --text-3xl: 1.875rem; /* 30px */
+  --text-3xl--line-height: 1.2;
+  --text-4xl: 2.5rem; /* 40px */
+  --text-4xl--line-height: 1.15;
+  --text-4xl--letter-spacing: var(--tracking-tight);
+
+  --font-sans:
+    "IBM Plex Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-mono: "IBM Plex Mono", monospace;
+
+  /* Spacing rides Tailwind's 0.25rem step, so `p-4` is 16px. Only lengths
+     that carry a meaning of their own get a name of their own. */
+
+  /* The passage toggle sits in the list gutter, so its hit area is also
+     the list indent — one token keeps the two from drifting apart. */
+  --spacing-marker: 1.125rem; /* 18px */
+
+  /* Longest software-canon pill ("Essays & talks") plus the gap to
+     the list, so hanging labels stay on-page when the measure is centred.
+     Tracks `--text-2xs`: the pill grew with the type scale. */
+  --spacing-pill-gutter: 8.5rem; /* 136px */
+
+  /* Page edges: the gutter, the notch and the 1440px cap, whichever is
+     widest. Narrow screens trade the gutter down below. */
+  --spacing-page-left: max(
+    1.5rem,
+    env(safe-area-inset-left),
+    calc((100vw - 1440px) / 2)
+  );
+  --spacing-page-right: max(
+    1.5rem,
+    env(safe-area-inset-right),
+    calc((100vw - 1440px) / 2)
+  );
+  --spacing-page-top: max(1.5rem, env(safe-area-inset-top));
+  --spacing-page-bottom: max(1.5rem, env(safe-area-inset-bottom));
+
+  /* Breakpoints. Mostly reached through the `max-*` variants, since the
+     layouts are written wide-first. */
+  --breakpoint-xs: 26.25rem; /* 420px */
+  --breakpoint-sm: 35rem; /* 560px */
+  --breakpoint-md: 40rem; /* 640px */
+  --breakpoint-lg: 56.25rem; /* 900px */
+}
+
+/* Mono overline: résumé section headings and dts. Compact leading
+   lives here rather than on `--text-sm`, which is a reading size. */
+@utility label {
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  line-height: calc(var(--spacing) * 4);
+  font-weight: 600;
+  letter-spacing: var(--tracking-wide);
+  text-transform: uppercase;
+}
+
+@layer base {
+  :root {
+    color-scheme: light dark;
+
+    /* The dark palette, written once. Both the OS-preference branch and the
+       `.theme-dark` opt-in below only ever point the live tokens at these,
+       so a dark colour changes in exactly one place. Pages that want a
+       different dark mood (the home page's "void") override the live token
+       on top, rather than restating the palette. */
+    --dark-background: #181818;
+    --dark-text: #fff;
+    --dark-muted: rgba(255, 255, 255, 0.66);
+    --dark-faint: rgba(255, 255, 255, 0.46);
+    --dark-line: rgba(255, 255, 255, 0.2);
+    --dark-hover: rgba(255, 255, 255, 0.08);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --color-background: var(--dark-background);
+      --color-text: var(--dark-text);
+      --color-muted: var(--dark-muted);
+      --color-faint: var(--dark-faint);
+      --color-line: var(--dark-line);
+      --color-hover: var(--dark-hover);
+    }
+  }
+
+  /* Dark regardless of the visitor's OS setting — set on <html> via the
+     layout's `htmlClass`. Sits after the media query so it wins in light
+     mode, and before the print block so paper still outranks it. */
+  .theme-dark {
+    color-scheme: dark;
+    --color-background: var(--dark-background);
+    --color-text: var(--dark-text);
+    --color-muted: var(--dark-muted);
+    --color-faint: var(--dark-faint);
+    --color-line: var(--dark-line);
+    --color-hover: var(--dark-hover);
+  }
+
+  /* Reading the breakpoint back keeps the tokens and the `max-xs`
+     utilities that use them switching at the same width. */
+  @media (width < theme(--breakpoint-xs)) {
+    :root {
+      --spacing-page-left: max(1rem, env(safe-area-inset-left));
+      --spacing-page-right: max(1rem, env(safe-area-inset-right));
+      --spacing-page-bottom: max(1rem, env(safe-area-inset-bottom));
+    }
+  }
+
+  html,
+  body {
+    background: var(--color-background);
+  }
+
+  body {
+    color: var(--color-text);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+
+  /* Widow and orphan control, the browser's job since `text-wrap` landed.
+     Headings are short enough to balance across their lines; body copy only
+     needs the last line protected, which is what `pretty` does. */
+  h1,
+  h2,
+  h3 {
+    text-wrap: balance;
+  }
+
+  p,
+  li,
+  dd,
+  figcaption {
+    text-wrap: pretty;
+  }
+
+  ::selection {
+    background: var(--color-text);
+    color: var(--color-background);
+  }
+
+  a {
+    color: inherit;
+    text-decoration-line: underline;
+    text-decoration-style: dotted;
+    text-decoration-color: var(--color-faint);
+    text-decoration-thickness: 1px;
+    text-underline-offset: 3px;
+    transition:
+      text-decoration-color 0.15s ease-out,
+      color 0.15s ease-out;
+  }
+
+  a:hover {
+    color: var(--color-text);
+    text-decoration-style: solid;
+    text-decoration-color: currentColor;
+  }
+
+  a:focus-visible {
+    border-radius: 1px;
+    outline: 2px solid var(--color-text);
+    outline-offset: 2px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    a {
+      transition: none;
+    }
+  }
+
+  /* Print is a third theme context, not a page-level concern. Redefining
+     the tokens re-themes every utility at once, which is what the résumé
+     PDF relies on. It sits last so it outranks the dark branch above. */
+  @media print {
+    :root {
+      color-scheme: light;
+      --color-background: #fff;
+      --color-text: #17181a;
+      --color-muted: #5c6066;
+      --color-faint: rgba(23, 24, 26, 0.6);
+      --color-line: #dcdee2;
+
+      /* Paper keeps the tighter scale the screen sizes stepped up from.
+         A reader can't zoom a PDF page, but they also can't be handed a
+         résumé that has spilled onto a third page — and print carries its
+         own reading distance, so 16px body on A4 is already generous. */
+      --text-2xs: 0.5rem;
+      --text-xs: 0.625rem;
+      --text-sm: 0.75rem;
+      --text-md: 0.8125rem;
+      --text-lg: 0.875rem;
+      --text-xl: 1rem;
+      --text-2xl: 1.25rem;
+      --text-2xl--line-height: 1.4;
+      --text-3xl: 1.5rem;
+      --text-4xl: 2rem;
+      --text-4xl--line-height: 1.2;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+  }
+}

@@ -1,0 +1,192 @@
+---
+import { getEntry } from "astro:content";
+
+import Layout from "../layouts/Layout.astro";
+
+const entry = await getEntry("resume", "resume");
+if (!entry) throw new Error("Missing resume entry in data/resume.json5");
+const resume = entry.data;
+
+/* The name recruiters see in their downloads folder, rather than "resume.pdf".
+   public/_headers repeats it as a Content-Disposition filename, which covers
+   the saves the download attribute never sees: a shared link, or Save from the
+   browser's own PDF viewer. Keep the two in step. */
+const pdfFilename = `${resume.name} - Resume.pdf`;
+
+/* Inline runs separated by a dot or a comma, rather than a bullet list.
+   The items are adjacent elements with no whitespace between them, so the run
+   needs a wrapping flex container to give the browser somewhere to break. The
+   separator hangs off the end of its own item and the gap supplies the space
+   after it.
+
+   Wrapped flex rows butt against each other at exactly the line box, and every
+   run here is set at `text-lg/5` — 17px on 20px. That leaves a link's dotted
+   underline all but touching the line below it, so the runs carry a row gap
+   too. It only shows up where a run actually wraps.
+
+   Paper doesn't have the collision: print drops the underline and takes the
+   type down to 14px in that same 20px box. The gap there would only spend the
+   budget the third-page note below is about, so print keeps the rows butted. */
+const run = "flex flex-wrap gap-y-1 print:gap-y-0";
+const dotted =
+  "whitespace-nowrap not-last:after:pl-[0.4em] not-last:after:text-line not-last:after:content-['·']";
+const sectionHeading =
+  "mt-8 border-b border-line pb-2 label text-muted print:mt-4";
+const entryClass = "mt-6 break-inside-avoid print:mt-3";
+const entryHeader = "flex items-baseline justify-between gap-4";
+const orgName = "text-2xl font-semibold";
+const period = "shrink-0 text-lg/5 text-muted tabular-nums";
+const bullets = "mt-3 list-disc pl-6 print:mt-2";
+/* Bullets carry their own separator, so they don't need the full paragraph
+   space Butterick asks for — but 4px read as a loose line, not a new item.
+   Paper keeps the tighter gap, where the page break is the scarcer resource. */
+const bulletGap = "[&+li]:mt-2 print:[&+li]:mt-1";
+---
+
+<Layout
+  title="Résumé"
+  description={`${resume.name} — ${resume.title}. Résumé.`}
+  bodyClass="text-xl print:leading-[1.3]"
+>
+  <main class="mx-auto max-w-3xl px-6 py-12 print:max-w-none print:p-0">
+    <header
+      class="flex flex-col items-start gap-4 md:flex-row md:justify-between md:gap-6"
+    >
+      <div>
+        <h1 class="text-4xl font-semibold">{resume.name}</h1>
+        <p class="mt-1 text-muted">{resume.title}</p>
+        <dl
+          class="mt-4 grid grid-cols-[auto_1fr] items-baseline gap-x-4 gap-y-1 text-lg/5 text-muted"
+        >
+          <dt class="label">Contact</dt>
+          <dd class={`${run} min-w-0 gap-x-[0.4em]`}>
+            <span class={dotted}>
+              <a href={`mailto:${resume.email}`}>{resume.email}</a>
+            </span>
+            {resume.phone && <span class={dotted}>{resume.phone}</span>}
+            {resume.location && <span class={dotted}>{resume.location}</span>}
+          </dd>
+          <dt class="label">Online</dt>
+          <dd class={`${run} min-w-0 gap-x-[0.4em]`}>
+            {
+              resume.links.map((link) => (
+                <span class={dotted}>
+                  <a href={link.url}>{link.label}</a>
+                </span>
+              ))
+            }
+          </dd>
+        </dl>
+      </div>
+      <a
+        class="mt-1 inline-flex shrink-0 items-center gap-2 rounded-md border border-line px-3 py-2 text-lg/5 font-medium whitespace-nowrap text-text no-underline transition-[border-color,background-color] duration-150 hover:border-text hover:bg-hover print:hidden"
+        href="/resume.pdf"
+        download={pdfFilename}
+      >
+        <svg
+          class="shrink-0"
+          width="14"
+          height="14"
+          viewBox="0 0 16 16"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.6"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          aria-hidden="true"
+        >
+          <path d="M8 2v8m0 0L4.5 6.5M8 10l3.5-3.5"></path>
+          <path d="M2.5 12.5v1a1 1 0 0 0 1 1h9a1 1 0 0 0 1-1v-1"></path>
+        </svg>
+        Download PDF
+      </a>
+    </header>
+
+    {
+      resume.summary && (
+        <p class="mt-6 max-w-2xl print:mt-4">{resume.summary}</p>
+      )
+    }
+
+    <h2 class={sectionHeading}>Experience</h2>
+    {
+      resume.experience.map((entry) => (
+        <section class={entryClass}>
+          <div class={entryHeader}>
+            <h3 class={orgName}>{entry.org}</h3>
+            <span class={period}>{entry.period}</span>
+          </div>
+          {entry.roles && entry.roles.length > 0 && (
+            <ul class="mt-2">
+              <li class={`${entryHeader} text-xl`}>
+                <span class="font-medium">{entry.roles[0].title}</span>
+                {entry.roles[0].period && (
+                  <span class={period}>{entry.roles[0].period}</span>
+                )}
+              </li>
+              {entry.roles.length > 1 && (
+                <li class={`${run} mt-1 gap-x-[0.3em] text-lg/5 text-muted`}>
+                  <span class="font-medium text-text">Previously:</span>
+                  {entry.roles.slice(1).map((role) => (
+                    <span class="whitespace-nowrap not-last:after:content-[',']">
+                      {role.title} ({role.short_period ?? role.period})
+                    </span>
+                  ))}
+                </li>
+              )}
+            </ul>
+          )}
+          <ul class={bullets}>
+            {entry.bullets.map((bullet) => (
+              <li class={bulletGap}>{bullet}</li>
+            ))}
+          </ul>
+          {entry.stack && (
+            <p
+              class={`${run} mt-3 gap-x-[0.35em] font-mono text-lg/5 text-muted print:mt-2`}
+            >
+              {entry.stack.map((item) => (
+                <span class="not-last:after:pl-[0.35em] not-last:after:text-line not-last:after:content-['·']">
+                  {item}
+                </span>
+              ))}
+            </p>
+          )}
+        </section>
+      ))
+    }
+
+    <h2 class={sectionHeading}>Education</h2>
+    {
+      resume.education.map((entry) => (
+        <section class={entryClass}>
+          <div class={entryHeader}>
+            <h3 class={orgName}>{entry.org}</h3>
+            <span class={period}>{entry.period}</span>
+          </div>
+          <p class="mt-1 text-muted">{entry.qualification}</p>
+          <ul class={bullets}>
+            {entry.bullets.map((bullet) => (
+              <li class={bulletGap}>{bullet}</li>
+            ))}
+          </ul>
+        </section>
+      ))
+    }
+  </main>
+</Layout>
+
+<style>
+  /* Print tokens, the link reset and hiding the site nav all live closer to
+     what they style (global.css, Header.astro) so they win the cascade. */
+  @media print {
+    /* The side margins set the measure: A4 less 2×20mm is 170mm, which at
+       the 16px print body works out around 80 characters. 12mm gave 89 —
+       past the top of Butterick's 45–90 range and well past his target.
+       This is what pushes the PDF onto a second page; the measure wins. */
+    @page {
+      size: A4;
+      margin: 12mm 20mm;
+    }
+  }
+</style>

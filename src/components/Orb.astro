@@ -1,0 +1,627 @@
+---
+// "Working" orb: a canvas particle field that spins under the pointer.
+// Self-contained — the script only ever touches its own [data-orb] canvas.
+---
+
+{/* A centered square that spins under the pointer. */}
+<canvas
+  data-orb
+  class="orb aspect-square h-auto w-[min(84vmin,640px)] cursor-grab touch-none select-none active:cursor-grabbing"
+  width="640"
+  height="640"
+  role="img"
+  aria-label="Working…"
+></canvas>
+{/* Soft edge frame above the orb and below the text. */}
+<div
+  class="pointer-events-none fixed inset-0 z-1 shadow-[inset_0_0_240px_60px_var(--orb-edge)]"
+  aria-hidden="true"
+>
+</div>
+
+<style is:global>
+  /* Scene tokens and the body-level wash the orb sits in — both reach
+     outside this component, so they cannot be scoped. */
+  html:root {
+    --stage-inner: rgba(255, 255, 255, 0.32);
+    --stage-middle: rgba(255, 255, 255, 0.1);
+    --orb-edge: transparent;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    html:root {
+      --stage-inner: rgba(255, 255, 255, 0.045);
+      --stage-middle: rgba(255, 255, 255, 0.015);
+      --orb-edge: rgba(0, 0, 0, 0.55);
+    }
+  }
+
+  /* Stage light: a faint pool of light behind the orb so it sits in
+     space rather than on a flat void */
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background: radial-gradient(
+      circle at 50% 52%,
+      var(--stage-inner),
+      var(--stage-middle) 34%,
+      transparent 62%
+    );
+    pointer-events: none;
+  }
+
+  /* Film grain: breaks up gradient banding and gives the black some
+     tooth. Live: the oversized tile jumps position ~11fps (steps(1)
+     holds each frame, then snaps), so the noise churns like film */
+  body::after {
+    content: "";
+    position: fixed;
+    inset: -50%;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    background-size: 160px 160px;
+    opacity: 0.1;
+    pointer-events: none;
+    animation: grain 0.9s steps(1) infinite;
+  }
+
+  @keyframes grain {
+    0%,
+    100% {
+      transform: translate(0, 0);
+    }
+    10% {
+      transform: translate(-1.6%, -2.4%);
+    }
+    20% {
+      transform: translate(-3.1%, 1.7%);
+    }
+    30% {
+      transform: translate(2.3%, -3.3%);
+    }
+    40% {
+      transform: translate(-2.6%, 3.1%);
+    }
+    50% {
+      transform: translate(-1.4%, 0.8%);
+    }
+    60% {
+      transform: translate(3.2%, 0.4%);
+    }
+    70% {
+      transform: translate(0.6%, 2.6%);
+    }
+    80% {
+      transform: translate(1.8%, -1.5%);
+    }
+    90% {
+      transform: translate(-3.4%, 2.2%);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    body::after {
+      animation: none;
+    }
+  }
+</style>
+
+<style>
+  .orb {
+    animation: orb-in 0.9s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  @keyframes orb-in {
+    from {
+      opacity: 0;
+      transform: scale(0.985);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .orb {
+      animation: none;
+    }
+  }
+</style>
+
+    <script>
+      interface Dot {
+        a?: number;
+        halo?: number;
+        r: number;
+        white: number;
+        x: number;
+        y: number;
+        z: number;
+      }
+
+      interface Orb {
+        hopfP: number;
+        hopfT: number;
+        idx: number;
+        lane: number;
+        ph: number;
+        phi: number;
+        shell: number;
+        speed: number;
+        ux: number;
+        uy: number;
+        uz: number;
+        vx: number;
+        vy: number;
+        vz: number;
+      }
+
+      type Vec3 = [number, number, number];
+      type Position = (ob: Orb, a: number, t: number, out: number[]) => void;
+
+      console.log(String.raw` ________
+< Hello! >
+ --------
+        \   ^__^
+         \  (oo)\_______
+            (__)\       )\/\
+                ||----w |
+                ||     ||`);
+
+      // "Working" orb — vanilla port of the orbits mode from
+      // Jakub Antalik's thinking-orbs (MIT).
+      // https://github.com/Jakubantalik/thinking-orbs
+      // Preset: state "working", resolved to plain numbers; counts
+      // doubled over the base profile so density holds at this frame size.
+      function initOrb(canvas: HTMLCanvasElement) {
+        const SIZE = 640;
+        const SPEED = 0.65;
+        const O = {
+          orbitN: 32,
+          ghostN: 96,
+          ghostR: 0.9,
+          ghostA: 0.2,
+          particles: 3,
+          partR: 1.2,
+          partRDepth: 1.6,
+          rsPow: 0.6,
+          rMin: 0.3,
+        };
+
+        const dpr = Math.min(2, window.devicePixelRatio || 1);
+        canvas.width = Math.round(SIZE * dpr);
+        canvas.height = Math.round(SIZE * dpr);
+        const drawingContext = canvas.getContext("2d");
+        if (!drawingContext) return;
+        const ctx = drawingContext;
+        const prefersDark = window.matchMedia("(prefers-color-scheme: dark)");
+
+        // Deterministic hash in [0, 1)
+        function hashD(a: number, b: number) {
+          const h = Math.sin(a * 12.9898 + b * 78.233) * 43758.5453;
+          return h - Math.floor(h);
+        }
+
+        // Spin + tilt + orthographic projection
+        function makeProj(
+          yaw: number,
+          tilt: number,
+          cx: number,
+          cy: number,
+          scale: number,
+        ) {
+          const st = Math.sin(tilt);
+          const ct = Math.cos(tilt);
+          const sy = Math.sin(yaw);
+          const cyw = Math.cos(yaw);
+          return (x: number, y: number, z: number): Vec3 => {
+            const x1 = x * cyw + z * sy;
+            const z1 = -x * sy + z * cyw;
+            const y1 = y * ct - z1 * st;
+            const z2 = y * st + z1 * ct;
+            return [cx + x1 * scale, cy - y1 * scale, z2];
+          };
+        }
+
+        // z-sort far→near. Dark mode keeps the original luminous grayscale;
+        // light mode uses one graphite ink and carries depth through size and
+        // opacity instead of inverted tone.
+        function paint(dots: Dot[]) {
+          dots.sort((a, b) => a.z - b.z);
+          const isDark = prefersDark.matches;
+          for (const d of dots) {
+            const pathAlpha = d.a ?? 1;
+            const alpha =
+              !isDark && d.halo == null ? pathAlpha * 0.28 : pathAlpha;
+            if (alpha < 0.02) continue;
+            const w = Math.min(1, Math.max(0, d.white));
+            const darkInk = Math.round((1 - w) * 255);
+            const red = isDark ? darkInk : 24;
+            const green = isDark ? darkInk : 25;
+            const blue = isDark ? darkInk : 23;
+            const r = Math.max(O.rMin, d.r);
+            // On the dark substrate, running particles carry a faint halo,
+            // stronger up close, so they read as light sources. Dark dots
+            // stay crisp without a halo on the light substrate.
+            if (isDark && d.halo != null) {
+              const glow = ctx.createRadialGradient(
+                d.x,
+                d.y,
+                r * 0.5,
+                d.x,
+                d.y,
+                r * 3,
+              );
+              glow.addColorStop(
+                0,
+                `rgba(${red},${green},${blue},${0.05 + 0.1 * d.halo})`,
+              );
+              glow.addColorStop(1, `rgba(${red},${green},${blue},0)`);
+              ctx.fillStyle = glow;
+              ctx.beginPath();
+              ctx.arc(d.x, d.y, r * 3, 0, Math.PI * 2);
+              ctx.fill();
+            }
+            ctx.fillStyle = `rgba(${red},${green},${blue},${alpha})`;
+            ctx.beginPath();
+            ctx.arc(d.x, d.y, r, 0, Math.PI * 2);
+            ctx.fill();
+          }
+        }
+
+        // Per-ring static geometry. Shells: four discrete radii instead
+        // of a scattered spread, inner ones filling the core the way the
+        // original preset's loose cloud did. Plane normals: Fibonacci-
+        // distributed for even coverage. Speeds: all prograde, Kepler-
+        // style (inner shells faster, ∝ r^-1.5) with per-ring jitter.
+        const ORBS: Orb[] = [];
+        for (let orb = 0; orb < O.orbitN; orb++) {
+          const h2 = hashD(orb, 5.2);
+          const h3 = hashD(orb, 8.9);
+          const shell = [0.56, 0.72, 0.86, 1][orb % 4];
+          const GA = Math.PI * (3 - Math.sqrt(5));
+          const ny = 1 - (2 * (orb + 0.5)) / O.orbitN;
+          const nRad = Math.sqrt(1 - ny * ny);
+          const nTh = GA * orb;
+          const nx = nRad * Math.cos(nTh);
+          const nz = nRad * Math.sin(nTh);
+          // orbit plane basis (u, v ⟂ normal n)
+          let ux = -ny;
+          let uy = nx;
+          const uz = 0;
+          const ul = Math.max(1e-6, Math.sqrt(ux * ux + uy * uy));
+          ux /= ul;
+          uy /= ul;
+          const vx = ny * uz - nz * uy;
+          const vy = nz * ux - nx * uz;
+          const vz = nx * uy - ny * ux;
+          const speed = 0.34 * shell ** -1.5 * (0.9 + 0.2 * h3);
+          // globe config: this ring's even-area latitude
+          const phi = Math.acos(1 - (2 * (orb + 0.5)) / O.orbitN);
+          // composing config: this band's offset across the ribbon stack
+          const lane = (orb - (O.orbitN - 1) / 2) * 0.05;
+          // hopf config: this ring's Hopf fibre sits over a base point on S²;
+          // reuse the even Fibonacci normal as that base point (θ from the
+          // pole, φ around it)
+          const hopfT = Math.acos(Math.max(-1, Math.min(1, ny)));
+          const hopfP = Math.atan2(nz, nx);
+          ORBS.push({
+            ux,
+            uy,
+            uz,
+            vx,
+            vy,
+            vz,
+            shell,
+            speed,
+            ph: h2 * 6,
+            phi,
+            lane,
+            hopfT,
+            hopfP,
+            idx: orb,
+          });
+        }
+
+        // Configurations the orb morphs between. Each places ring `orb`
+        // at angle `a` on a unit-ish sphere/disc (scaled by R later).
+        function posOrbits(ob: Orb, a: number, _t: number, out: number[]) {
+          const ca = Math.cos(a);
+          const sa = Math.sin(a);
+          out[0] = (ob.ux * ca + ob.vx * sa) * ob.shell;
+          out[1] = (ob.uy * ca + ob.vy * sa) * ob.shell;
+          out[2] = (ob.uz * ca + ob.vz * sa) * ob.shell;
+        }
+        // every orbit ring rotates into a line of latitude
+        function posGlobe(ob: Orb, a: number, _t: number, out: number[]) {
+          const s = Math.sin(ob.phi);
+          out[0] = s * Math.cos(a);
+          out[1] = Math.cos(ob.phi);
+          out[2] = s * Math.sin(a);
+        }
+        // composing: tilted bands stacked across the sphere, each rippling
+        // with a travelling wobble, all normalized onto the surface — the
+        // demo's "ribbon" mode
+        function posComposing(ob: Orb, a: number, t: number, out: number[]) {
+          const g = 0.55;
+          const wob =
+            0.16 * Math.sin(a * 3 - t * 1.7 + ob.idx * 0.22) +
+            0.07 * Math.sin(a * 5 + t * 1.1);
+          const Y = ob.lane + wob;
+          const x = Math.cos(a);
+          const y = Math.cos(g) * Math.sin(a) - Math.sin(g) * Y;
+          const z = Math.sin(g) * Math.sin(a) + Math.cos(g) * Y;
+          const inv = 1 / Math.max(0.15, Math.hypot(x, y, z));
+          out[0] = x * inv;
+          out[1] = y * inv;
+          out[2] = z * inv;
+        }
+        // hopf: every ring is a Hopf fibre — a great circle of S³ that,
+        // stereographically projected into 3-space, becomes a circle linked
+        // through every other. A soft radial squash folds the one fibre that
+        // would run to infinity back into a bounded ball, so the whole thing
+        // stays a contained knot of interlocking rings.
+        function posHopf(ob: Orb, a: number, _t: number, out: number[]) {
+          const c = Math.cos(ob.hopfT / 2);
+          const s = Math.sin(ob.hopfT / 2);
+          const p = ob.hopfP;
+          // S³ point on this fibre at parameter a (ψ)
+          const X0 = c * Math.cos(a);
+          const X1 = c * Math.sin(a);
+          const X2 = s * Math.cos(a - p);
+          const X3 = s * Math.sin(a - p);
+          // stereographic projection from the X3 = 1 pole (guarded)
+          const k = 1 / (1.0000001 - X3);
+          const x = X0 * k;
+          const y = X1 * k;
+          const z = X2 * k;
+          // squash [0, ∞) radius into a bounded shell so no fibre escapes.
+          // The small denominator pushes the tiny inner fibres outward and
+          // saturates the huge pole-adjacent ones near the same radius, so
+          // the whole set overlaps into legible interlocking rings instead
+          // of a dense-core / sparse-halo cloud.
+          const rr = Math.hypot(x, y, z);
+          const cr = (rr / (0.55 + rr)) * 1.15;
+          const inv = rr > 1e-6 ? cr / rr : 0;
+          out[0] = x * inv;
+          out[1] = y * inv;
+          out[2] = z * inv;
+        }
+        // seam: every ring is a closed tennis-ball seam — a great circle
+        // whose latitude wobbles twice per turn — oriented by that ring's own
+        // Fibonacci frame, so the set interlocks into a woven ball. amp→0
+        // collapses each seam back to a flat great circle (i.e. posOrbits),
+        // so orbits⇄seam morphs by simply growing the wobble.
+        function posSeam(ob: Orb, a: number, _t: number, out: number[]) {
+          const nx = Math.sin(ob.hopfT) * Math.cos(ob.hopfP);
+          const ny = Math.cos(ob.hopfT);
+          const nz = Math.sin(ob.hopfT) * Math.sin(ob.hopfP);
+          const lat = 0.55 * Math.sin(2 * a + ob.ph);
+          const cl = Math.cos(lat);
+          const sl = Math.sin(lat);
+          const e1 = cl * Math.cos(a);
+          const e2 = cl * Math.sin(a);
+          const e3 = sl;
+          out[0] = e1 * ob.ux + e2 * ob.vx + e3 * nx;
+          out[1] = e1 * ob.uy + e2 * ob.vy + e3 * ny;
+          out[2] = e1 * ob.uz + e2 * ob.vz + e3 * nz;
+        }
+        const CONFIGS: Position[] = [
+          posOrbits,
+          posGlobe,
+          posComposing,
+          posHopf,
+          posSeam,
+        ];
+        // ?config=<name> pins a single arrangement (no morph) for inspection;
+        // unset, the default SCHED cycle runs untouched.
+        const CONFIG_NAMES: Record<string, number> = {
+          orbits: 0,
+          globe: 1,
+          composing: 2,
+          hopf: 3,
+          seam: 4,
+        };
+        const forcedName = new URLSearchParams(location.search).get("config");
+        const FORCED =
+          forcedName != null && forcedName in CONFIG_NAMES
+            ? CONFIG_NAMES[forcedName]
+            : null;
+
+        // Timeline in t-units (0.65 × seconds): the configs cycle in order —
+        // orbits → globe → composing → hopf → seam — each holding ~5s (3.25
+        // t-units) before morphing to the next. seam sits last so the loop
+        // closes on seam → orbits, its cleanest morph (a seam is orbits with
+        // the wobble dialled to zero). Each entry morphs in over its first
+        // MORPH t-units; the first pass through segment 0 never morphs, so the
+        // page opens on clean orbits.
+        const SCHED: Array<[number, number]> = [
+          [0, 3.25],
+          [1, 3.25],
+          [2, 3.25],
+          [3, 3.25],
+          [4, 3.25],
+        ];
+        const MORPH = 1.3;
+        const CYCLE = SCHED.reduce((s, e) => s + e[1], 0);
+        const easeInOut = (u: number) =>
+          u < 0.5 ? 4 * u * u * u : 1 - (-2 * u + 2) ** 3 / 2;
+
+        // [from-config, to-config, blend] at time t
+        function phase(t: number): [number, number, number] {
+          if (t < SCHED[0][1]) return [0, 0, 1];
+          let tc = t % CYCLE;
+          let prev = SCHED[SCHED.length - 1][0];
+          for (const [cfg, dur] of SCHED) {
+            if (tc < dur) {
+              const e = tc < MORPH && cfg !== prev ? easeInOut(tc / MORPH) : 1;
+              return [prev, cfg, e];
+            }
+            tc -= dur;
+            prev = cfg;
+          }
+          return [0, 0, 1];
+        }
+
+        const PA: number[] = [0, 0, 0];
+        const PB: number[] = [0, 0, 0];
+
+        function draw(t: number) {
+          const cx = SIZE / 2;
+          const cy = SIZE / 2;
+          const R = (SIZE / 2) * 0.82;
+          const pt = makeProj(t * 0.12 + yaw, 0.3 + pitch, cx, cy, 1);
+          const rs = (SIZE / 300) ** O.rsPow;
+          const [cfgA, cfgB, blend] =
+            FORCED != null ? [FORCED, FORCED, 1] : phase(t);
+          const A = CONFIGS[cfgA];
+          const B = CONFIGS[cfgB];
+
+          const dots: Dot[] = [];
+          for (let orb = 0; orb < O.orbitN; orb++) {
+            const ob = ORBS[orb];
+
+            // place a dot at ring angle `a`, lerping configs mid-morph;
+            // depth normalized by the dot's own radius so inner shells
+            // shade the same as before
+            const place = (a: number): [number, number, number, number] => {
+              B(ob, a, t, PB);
+              let x = PB[0];
+              let y = PB[1];
+              let z = PB[2];
+              if (blend < 1) {
+                A(ob, a, t, PA);
+                x = PA[0] + (x - PA[0]) * blend;
+                y = PA[1] + (y - PA[1]) * blend;
+                z = PA[2] + (z - PA[2]) * blend;
+              }
+              const rlen = Math.max(0.15, Math.sqrt(x * x + y * y + z * z)) * R;
+              const [px, py, pz] = pt(x * R, y * R, z * R);
+              return [px, py, pz, (pz / rlen + 1) / 2];
+            };
+
+            // ghost path
+            for (let k = 0; k < O.ghostN; k++) {
+              const [px, py, z, depth] = place((k / O.ghostN) * 2 * Math.PI);
+              dots.push({
+                x: px,
+                y: py,
+                z,
+                r: O.ghostR * rs,
+                white: 0.72,
+                a: O.ghostA * (0.4 + 0.6 * depth),
+              });
+            }
+            // the particles doing the work
+            for (let m = 0; m < O.particles; m++) {
+              const [px, py, z, depth] = place(
+                t * ob.speed + (m / O.particles) * 2 * Math.PI + ob.ph,
+              );
+              dots.push({
+                x: px,
+                y: py,
+                z,
+                r: (O.partR + O.partRDepth * depth) * rs,
+                white: 0.3 - 0.22 * depth,
+                halo: depth,
+              });
+            }
+          }
+          paint(dots);
+        }
+
+        function frame(tSec: number) {
+          ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+          ctx.clearRect(0, 0, SIZE, SIZE);
+          draw(tSec);
+        }
+
+        // Drag to spin, free on both axes: horizontal drag drives yaw,
+        // vertical drag drives pitch. Momentum on release decays slowly,
+        // so the sphere carries weight; the slow auto-drift continues.
+        let yaw = 0;
+        let pitch = 0;
+        let yawVel = 0;
+        let pitchVel = 0;
+        let dragging = false;
+        let lastX = 0;
+        let lastY = 0;
+        let lastMove = 0;
+
+        const DRAG = Math.PI * 1.2;
+        const clampVel = (v: number) => Math.max(-4, Math.min(4, v));
+
+        const reduced = window.matchMedia(
+          "(prefers-reduced-motion: reduce)",
+        ).matches;
+
+        canvas.addEventListener("pointerdown", (e: PointerEvent) => {
+          dragging = true;
+          lastX = e.clientX;
+          lastY = e.clientY;
+          lastMove = performance.now();
+          yawVel = 0;
+          pitchVel = 0;
+          canvas.setPointerCapture(e.pointerId);
+        });
+        canvas.addEventListener("pointermove", (e: PointerEvent) => {
+          if (!dragging) return;
+          const now = performance.now();
+          const dYaw = ((e.clientX - lastX) / canvas.clientWidth) * DRAG;
+          const dPitch = ((e.clientY - lastY) / canvas.clientWidth) * DRAG;
+          yaw += dYaw;
+          pitch += dPitch;
+          const dt = Math.max(1, now - lastMove) / 1000;
+          yawVel = clampVel(dYaw / dt);
+          pitchVel = clampVel(dPitch / dt);
+          lastX = e.clientX;
+          lastY = e.clientY;
+          lastMove = now;
+          if (reduced) frame(0.6);
+        });
+        const endDrag = () => {
+          dragging = false;
+        };
+        canvas.addEventListener("pointerup", endDrag);
+        canvas.addEventListener("pointercancel", endDrag);
+
+        if (reduced) {
+          frame(0.6);
+          return;
+        }
+
+        let raf = 0;
+        let lastT = performance.now();
+        function loop() {
+          const now = performance.now();
+          const dt = (now - lastT) / 1000;
+          lastT = now;
+          if (!dragging) {
+            const decay = Math.exp(-1.2 * dt);
+            if (Math.abs(yawVel) > 0.0001) {
+              yaw += yawVel * dt;
+              yawVel *= decay;
+            }
+            if (Math.abs(pitchVel) > 0.0001) {
+              pitch += pitchVel * dt;
+              pitchVel *= decay;
+            }
+          }
+          frame((now / 1000) * SPEED);
+          raf = requestAnimationFrame(loop);
+        }
+        document.addEventListener("visibilitychange", () => {
+          if (document.visibilityState === "hidden") {
+            cancelAnimationFrame(raf);
+          } else {
+            lastT = performance.now();
+            raf = requestAnimationFrame(loop);
+          }
+        });
+        raf = requestAnimationFrame(loop);
+      }
+
+      const canvas = document.querySelector<HTMLCanvasElement>("[data-orb]");
+      if (canvas) initOrb(canvas);
+    </script>

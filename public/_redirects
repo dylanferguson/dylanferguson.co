@@ -1,0 +1,5 @@
+# Some crawlers and audit tools probe /sitemap.xml directly instead of reading
+# the Sitemap: line in robots.txt. @astrojs/sitemap always names its index
+# <filenameBase>-index.xml with no option to flatten or rename, so point the
+# conventional path at the real one. robots.txt still declares the canonical URL.
+/sitemap.xml /sitemap-index.xml 301

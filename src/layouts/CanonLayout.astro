@@ -1,0 +1,32 @@
+---
+import Layout from "./Layout.astro";
+
+interface Props {
+  description: string;
+  excerptHint: string;
+  noindex?: boolean;
+  title: string;
+}
+
+const { description, excerptHint, noindex = false, title } = Astro.props;
+---
+
+<Layout
+  title={title}
+  description={description}
+  noindex={noindex}
+  bodyClass="min-h-screen text-lg"
+>
+  {/* Below 900px the gutters tighten before the 760px measure gives way. */}
+  <main class="mx-auto w-[min(100%_-_3rem,760px)] pt-12 pb-18 max-lg:w-[min(100%_-_2rem,760px)]">
+    {/* The measure is sized for the entry lines, which are titles and names
+        rather than prose. The header paragraphs are prose, so they get the
+        reading measure instead — `ch` so each tracks its own size. */}
+    <header class="mb-8">
+      <h1 class="text-3xl font-medium tracking-[-0.02em]">{title}</h1>
+      <p class="mt-2 max-w-[62ch] text-muted">{description}</p>
+      <p class="mt-1 max-w-[62ch] text-sm text-faint">{excerptHint}</p>
+    </header>
+    <slot />
+  </main>
+</Layout>

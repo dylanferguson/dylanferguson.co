@@ -1,0 +1,8 @@
+dist/
+.astro/
+.hugo_build.lock
+node_modules/
+.wrangler/
+.env*
+.cache/
+.claude/

@@ -1,0 +1,104 @@
+---
+import { BUILD_COMMIT } from "astro:env/server";
+
+import { BUILD_TIME } from "../build-time";
+import "../styles/global.css";
+
+interface Props {
+  /* Type and page-level layout that has to land on <body> itself. */
+  bodyClass?: string;
+  canonicalPath?: string;
+  description?: string;
+  /* Lands on <html> — for `theme-dark`, which has to reach `color-scheme`. */
+  htmlClass?: string;
+  lang?: string;
+  noindex?: boolean;
+  /* Social card. Every page gets one from `title`/`description`; these only
+     exist for pages that want to say something different there. */
+  ogDescription?: string;
+  ogImage?: string;
+  ogTitle?: string;
+  ogType?: string;
+  /* Faces this page renders in body copy, preloaded so text is not repainted
+     once the stylesheet gets around to requesting them. */
+  preloadFonts?: string[];
+  title: string;
+}
+
+const {
+  bodyClass,
+  canonicalPath,
+  description,
+  htmlClass,
+  lang = "en",
+  noindex = false,
+  ogDescription,
+  ogImage = "/favicon-192x192.png",
+  ogTitle,
+  ogType = "website",
+  preloadFonts = ["/fonts/ibm-plex-sans-latin.woff2"],
+  title,
+} = Astro.props;
+const canonical = new URL(canonicalPath ?? Astro.url.pathname, Astro.site);
+const ogImageUrl = new URL(ogImage, Astro.site);
+const socialDescription = ogDescription ?? description;
+---
+
+<!doctype html>
+<html lang={lang} class={htmlClass}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="build-time" content={BUILD_TIME} />
+    <meta name="build-commit" content={BUILD_COMMIT} />
+    {noindex && <meta name="robots" content="noindex" />}
+    {
+      preloadFonts.map((href) => (
+        <link
+          rel="preload"
+          href={href}
+          as="font"
+          type="font/woff2"
+          crossorigin
+        />
+      ))
+    }
+    <link rel="canonical" href={canonical} />
+    <link rel="icon" href="/favicon.ico" sizes="16x16 32x32 48x48" />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="32x32"
+      href="/favicon-32x32.png"
+    />
+    <link
+      rel="apple-touch-icon"
+      sizes="180x180"
+      href="/apple-touch-icon.png"
+    />
+    {/* Last, so crawlers that take the final declaration land on the
+    full-bleed tile rather than a rounded one they would crop. */}
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="192x192"
+      href="/favicon-192x192.png"
+    />
+    <title>{title}</title>
+    {description && <meta name="description" content={description} />}
+    <meta property="og:title" content={ogTitle ?? title} />
+    {
+      socialDescription && (
+        <meta property="og:description" content={socialDescription} />
+      )
+    }
+    <meta property="og:type" content={ogType} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={ogImageUrl} />
+    <meta name="twitter:card" content="summary" />
+    <slot name="head" />
+  </head>
+  <body class={bodyClass}>
+    <slot />
+  </body>
+</html>

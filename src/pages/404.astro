@@ -1,0 +1,19 @@
+---
+import NotFoundExperience from "../components/NotFoundExperience.astro";
+import BaseLayout from "../layouts/BaseLayout.astro";
+---
+
+<BaseLayout
+  title="404 Not Found"
+  canonicalPath="/404.html"
+  lang="en-AU"
+  noindex
+  htmlClass="theme-dark"
+  bodyClass="min-h-dvh overflow-hidden font-mono"
+  preloadFonts={[
+    "/fonts/ibm-plex-mono-latin-600.woff2",
+    "/fonts/ibm-plex-mono-latin-400.woff2",
+  ]}
+>
+  <NotFoundExperience />
+</BaseLayout>

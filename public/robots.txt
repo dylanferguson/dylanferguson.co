@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://dylanferguson.co/sitemap-index.xml

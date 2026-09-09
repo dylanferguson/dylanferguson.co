@@ -1,0 +1,125 @@
+---
+interface Props {
+  excerpts: string[];
+  title: string;
+}
+
+const { excerpts, title } = Astro.props;
+---
+
+<details class="passage inline text-md font-normal text-muted">
+  {/* The hit area is the list's left gutter — see the `marker` spacing
+      token, which the list indent also reads. The 3px centres the 18px
+      marker on the entry's first line (17px over 24.65px of leading). */}
+  <summary
+    class="absolute top-[3px] -left-marker flex size-marker cursor-pointer list-none items-center justify-center focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-text"
+  >
+    <span class="passage-marker" aria-hidden="true"></span>
+    <span class="sr-only">Show passage from {title}</span>
+  </summary>
+  <div class="passage-text mt-2 mb-3 max-w-[56ch] text-md text-muted">
+    {
+      excerpts.map((excerpt, index) => (
+        <>
+          {/* Separate excerpts are separate sources, not a paragraph break,
+              so they get a mark of their own rather than more space. */}
+          {index > 0 && (
+            <div class="my-2 text-center text-faint" aria-hidden="true">
+              * * *
+            </div>
+          )}
+          {/* Paragraphs are set flush left with space between, so the space
+              has to be unambiguous — half the leading, per Butterick. */}
+          {/* Excerpts are transcribed with their original line breaks. */}
+          <p class="[&+p]:mt-3 whitespace-pre-line">{excerpt}</p>
+        </>
+      ))
+    }
+  </div>
+</details>
+
+<style>
+  /* Bespoke marker art: a dot that folds into a chevron on open. Pseudo
+     elements and their two paired transitions read better as CSS than as
+     a stack of before:/after: utilities. */
+  .passage summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .passage-marker {
+    position: relative;
+    display: block;
+    width: 10px;
+    height: 10px;
+  }
+
+  .passage-marker::before,
+  .passage-marker::after {
+    position: absolute;
+    content: "";
+    transition:
+      opacity 140ms ease,
+      transform 180ms ease;
+  }
+
+  .passage-marker::before {
+    top: 4px;
+    left: 4px;
+    width: 3px;
+    height: 3px;
+    border-radius: 50%;
+    background: var(--color-faint);
+  }
+
+  .passage-marker::after {
+    top: 1px;
+    left: 2px;
+    width: 5px;
+    height: 5px;
+    border-right: 1px solid var(--color-muted);
+    border-bottom: 1px solid var(--color-muted);
+    opacity: 0;
+    transform: translateY(-2px) rotate(45deg) scale(0.65);
+  }
+
+  .passage summary:hover .passage-marker::before {
+    background: var(--color-text);
+  }
+
+  .passage[open] .passage-marker::before {
+    opacity: 0;
+    transform: scale(0.35);
+  }
+
+  .passage[open] .passage-marker::after {
+    opacity: 1;
+    transform: translateY(0) rotate(45deg) scale(1);
+  }
+
+  .passage[open] .passage-text {
+    animation: passage-in 180ms ease-out both;
+  }
+
+  @keyframes passage-in {
+    from {
+      opacity: 0;
+      transform: translateY(-4px);
+    }
+
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .passage-marker::before,
+    .passage-marker::after {
+      transition: none;
+    }
+
+    .passage[open] .passage-text {
+      animation: none;
+    }
+  }
+</style>

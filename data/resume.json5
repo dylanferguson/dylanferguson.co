@@ -1,0 +1,118 @@
+// Single source of truth for /resume/ and public/resume.pdf.
+// After editing, run `pnpm resume` to regenerate the PDF.
+{
+  name: "Dylan Ferguson",
+  title: "Principal Engineer",
+
+  // Phone deliberately omitted: the PDF is served from a public URL, so
+  // anything here is scraped along with it. Add `phone:` to publish it.
+  email: "hello@dylanferguson.co",
+  location: "Remote, Australia",
+
+  summary: "Principal Engineer focused on thoughtful end-user experiences and better developer workflows. Works collaboratively across system design, delivery, automation and production operations.",
+
+  links: [
+    { label: "dylanferguson.co", url: "https://dylanferguson.co/" },
+    {
+      label: "github.com/dylanferguson",
+      url: "https://github.com/dylanferguson",
+    },
+    {
+      label: "linkedin.com/in/dylanbferguson",
+      url: "https://www.linkedin.com/in/dylanbferguson/",
+    },
+  ],
+
+  experience: [
+    {
+      org: "NAB",
+      period: "Jan 2019 – Present",
+
+      // TODO: no bullets yet describe the Principal Engineer scope — the ones
+      // below are carried over from the Senior Analyst Engineer era.
+      // Ladder titles normalised to their industry equivalents: "Senior Analyst
+      // Engineer" / "Analyst Engineer" / "Graduate" are NAB-internal strings.
+      // Swap them back if you want the official versions for a background check.
+      roles: [
+        { title: "Principal Engineer", period: "Apr 2025 – Present" },
+        {
+          title: "Solution Designer",
+          period: "Jul 2024 – Apr 2025",
+          short_period: "2024–25",
+        },
+        {
+          title: "Senior Software Engineer",
+          period: "Apr 2020 – Jul 2024",
+          short_period: "2020–24",
+        },
+        {
+          title: "Software Engineer",
+          period: "Apr 2019 – Apr 2020",
+          short_period: "2019–20",
+        },
+        {
+          title: "Graduate Engineer",
+          period: "Jan 2019 – Apr 2019",
+          short_period: "2019",
+        },
+      ],
+      bullets: [
+        "Principal Engineer on a conversational AI platform, working across system design, scoping, full-stack delivery, developer tooling, test automation and production operations.",
+        "Built internal tooling that streamlined day-to-day development workflows.",
+        "Established platform monitoring, alerting and dashboarding; introduced SRE practices and strengthened production ownership within the team.",
+        "Previously developed and operated the CMS, micro-frontends and infrastructure behind nab.com.au as part of its web platform team.",
+      ],
+      stack: [
+        "TypeScript",
+        "Node",
+        "React",
+        "PostgreSQL",
+        "AWS",
+        "Docker",
+        "Splunk",
+        "AppDynamics",
+      ],
+    },
+
+    {
+      org: "Stile",
+      period: "Sept 2017 – Jan 2019",
+      roles: [{ title: "Contract Web Developer" }],
+      bullets: [
+        "Maintained and evolved Stile’s React-based marketing site (stileeducation.com).",
+        "Partnered with marketing and design on the launch of new campaigns, products and platform features.",
+      ],
+      stack: [
+        "React",
+        "Flow",
+        "Gatsby",
+        "CSS Modules",
+        "Ruby",
+        "Buildkite",
+        "AWS",
+      ],
+    },
+
+    {
+      org: "MLC",
+      period: "Jan – Jul 2018",
+      roles: [{ title: "Software Engineering Intern" }],
+      bullets: [
+        "Worked on n-link, a client administration platform for financial advisers.",
+      ],
+      stack: ["PL/SQL", "Oracle", "Maxim"],
+    },
+  ],
+
+  education: [
+    {
+      org: "Monash University",
+      period: "Feb 2016 – Nov 2018",
+      qualification: "Bachelor of Computer Science",
+      bullets: [
+        "Advanced computer science specialisation.",
+        "Recipient of the Monash Vice-Chancellor’s Scholarship for excellence.",
+      ],
+    },
+  ],
+}

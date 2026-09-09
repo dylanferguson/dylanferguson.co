@@ -1,0 +1,155 @@
+<style is:global>
+  /* Forced dark comes from `theme-dark` on <html> (see 404.astro and
+     global.css), so the palette is not restated here.
+
+     Visibility of the no-canvas fallback is driven by classes the
+     inline scripts put on <html>, so it stays in CSS. */
+  .fallback-visible .fallback {
+    visibility: visible;
+    opacity: 1;
+  }
+
+  .render-ready .fallback {
+    display: none;
+  }
+</style>
+<noscript>
+  <style>
+    .fallback {
+      visibility: visible;
+      opacity: 1;
+    }
+  </style>
+</noscript>
+<script is:inline>
+  /* If the canvas never reports in, show the fallback glyph instead. */
+  window.setTimeout(() => {
+    if (!document.documentElement.classList.contains("render-ready")) {
+      document.documentElement.classList.add("fallback-visible");
+    }
+  }, 3000);
+</script>
+<main class="relative min-h-dvh">
+  <h1 class="sr-only">404 — Page not found</h1>
+  <div class="absolute inset-0 overflow-hidden select-none" id="shrug" aria-hidden="true">
+    <span
+      class="fallback invisible absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-[clamp(1.875rem,6.8vw,5.25rem)] whitespace-nowrap opacity-0 transition-opacity duration-200"
+    >
+      ¯\_(ツ)_/¯
+    </span>
+  </div>
+  <p class="absolute right-0 bottom-6 left-0 z-2 text-center text-sm text-muted">
+    Nothing here, somehow. <a
+      class="underline-offset-[0.25em] hover:decoration-[0.15em]"
+      href="/">Let’s head home</a
+    >.
+  </p>
+</main>
+<script>
+  (() => {
+    const mountTarget = document.querySelector<HTMLElement>("#shrug");
+    if (!mountTarget) return;
+    const mount = mountTarget;
+    const reduceMotion = matchMedia(
+      "(prefers-reduced-motion: reduce)",
+    ).matches;
+    const canvas = document.createElement("canvas");
+    canvas.className = "absolute inset-0 block h-full w-full";
+    const drawingContext = canvas.getContext("2d");
+    if (!drawingContext) return;
+    const context = drawingContext;
+
+    const glyph = "¯\\_(ツ)_/¯";
+    let width = 0;
+    let height = 0;
+    let frame = 0;
+
+    mount.append(canvas);
+
+    function clamp(value: number, minimum: number, maximum: number) {
+      return Math.max(minimum, Math.min(maximum, value));
+    }
+
+    function bounceBetween(
+      distance: number,
+      minimum: number,
+      maximum: number,
+    ) {
+      const span = maximum - minimum;
+      if (span <= 0) return minimum;
+      const cycle = span * 2;
+      const position = ((distance % cycle) + cycle) % cycle;
+      return minimum + (position <= span ? position : cycle - position);
+    }
+
+    function resize() {
+      const bounds = mount.getBoundingClientRect();
+      const pixelRatio = Math.min(devicePixelRatio, 2);
+      width = bounds.width;
+      height = bounds.height;
+      canvas.width = Math.round(width * pixelRatio);
+      canvas.height = Math.round(height * pixelRatio);
+      context.setTransform(pixelRatio, 0, 0, pixelRatio, 0, 0);
+      if (reduceMotion) draw(0);
+    }
+
+    function drawGlyph(time: number) {
+      const fontSize = clamp(
+        Math.min(width * 0.068, height * 0.112),
+        30,
+        84,
+      );
+      context.font = `600 ${fontSize}px "IBM Plex Mono", monospace`;
+      context.textAlign = "center";
+      context.textBaseline = "middle";
+
+      const metrics = context.measureText(glyph);
+      const minX = metrics.actualBoundingBoxLeft;
+      const maxX = Math.max(
+        minX,
+        width - metrics.actualBoundingBoxRight,
+      );
+      const minY = metrics.actualBoundingBoxAscent;
+      const maxY = Math.max(
+        minY,
+        height - metrics.actualBoundingBoxDescent,
+      );
+      const startInset = 18;
+      const startX = Math.max(0, maxX - minX - startInset);
+      const startY = Math.max(0, maxY - minY - startInset);
+      const x = reduceMotion
+        ? width / 2
+        : bounceBetween(startX + time * 54, minX, maxX);
+      const y = reduceMotion
+        ? height / 2
+        : bounceBetween(startY + time * 41, minY, maxY);
+
+      context.fillStyle = "#fff";
+      context.fillText(glyph, x, y);
+    }
+
+    function draw(rawTime: number) {
+      const time = reduceMotion ? 0 : (rawTime / 1000) * 3.6;
+      context.fillStyle = "#000";
+      context.fillRect(0, 0, width, height);
+      drawGlyph(time);
+      if (!reduceMotion) frame = requestAnimationFrame(draw);
+    }
+
+    addEventListener("resize", resize);
+    document.addEventListener("visibilitychange", () => {
+      if (document.hidden) {
+        cancelAnimationFrame(frame);
+      } else if (!reduceMotion) {
+        frame = requestAnimationFrame(draw);
+      }
+    });
+
+    resize();
+    draw(performance.now());
+    document.fonts?.ready.then(() => {
+      if (reduceMotion) draw(0);
+    });
+    document.documentElement.classList.add("render-ready");
+  })();
+</script>
