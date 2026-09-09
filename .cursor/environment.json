@@ -1,0 +1,11 @@
+{
+  "name": "dylanferguson.co",
+  "user": "ubuntu",
+  "install": ". .cursor/use-node.sh && pnpm install --frozen-lockfile",
+  "terminals": [
+    {
+      "name": "astro-dev",
+      "command": ". .cursor/use-node.sh && pnpm dev --host"
+    }
+  ]
+}
