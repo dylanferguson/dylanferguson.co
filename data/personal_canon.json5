@@ -2,6 +2,17 @@
 {
   entries: [
     {
+      title: "How to Live Given the Certainty of Death",
+      author: "Shelly Kagan",
+      url: "https://www.youtube.com/watch?v=O8Hu465KL1w",
+      added: "2026-09-13T13:34:56Z",
+      excerpts: [
+        "We’ve got the extra burden of deciding what are the things most worth going after.",
+        "Summary — Choosing what deserves your life (0:00–11:21): You might pursue something valuable and later regret it because other things deserved your limited time more. You also need care in execution; choosing well doesn’t guarantee following through.",
+        "Summary — Balancing enjoyment with uncertain ambitions (11:21–17:30): Some pleasures are readily available. Other commitments—writing, building something, raising a family—can take years and still disappoint. A mixture sounds sensible, but deciding that mixture is itself a central life choice.",
+      ],
+    },
+    {
       title: "I Know What You Think of Me",
       author: "Tim Kreider",
       url: "https://archive.nytimes.com/opinionator.blogs.nytimes.com/2013/06/15/i-know-what-you-think-of-me/",
