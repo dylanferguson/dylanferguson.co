@@ -105,7 +105,7 @@ export function withLastmod(item) {
   if (!sources) {
     console.warn(
       `[page-lastmod] ${pathname} has no sources listed, shipping no <lastmod>. ` +
-        `Add it to ROUTE_SOURCES in scripts/page-lastmod.mjs.`,
+        `Add it in scripts/page-lastmod.mjs.`,
     );
     return item;
   }

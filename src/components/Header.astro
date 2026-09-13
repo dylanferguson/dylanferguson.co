@@ -2,8 +2,7 @@
 const path = Astro.url.pathname;
 const isHome = path === "/";
 
-/* One entry per nav item, so the href and the active check cannot drift.
-   /personal-canon/ is deliberately absent — it renders noindex. */
+/* /personal-canon/ is deliberately absent — it renders noindex. */
 const navItems = [
   { href: "/writings/", label: "Writings" },
   { href: "/software-canon/", label: "Software canon" },
@@ -24,8 +23,7 @@ const navLink = "aria-[current=page]:text-text aria-[current=page]:no-underline"
 
     The type steps down twice on the way to the narrowest phones: `md` under
     `xs`, and `sm` below 21rem, which is the width where the brand and the
-    three nav labels stop fitting on one line. The nav wraps rather than
-    overflowing once that budget is gone. */}
+    three nav labels stop fitting on one line. */}
 <header
   class:list={[
     "flex items-baseline justify-between gap-6 text-lg text-muted max-xs:gap-3 max-xs:text-md max-[21rem]:text-sm print:hidden",
