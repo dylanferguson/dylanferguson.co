@@ -1,4 +1,4 @@
-import { file } from "astro/loaders";
+import { file, glob } from "astro/loaders";
 import { z } from "astro/zod";
 import { defineCollection } from "astro:content";
 import JSON5 from "json5";
@@ -108,8 +108,25 @@ const resumeEntry = defineCollection({
   }),
 });
 
+const writings = defineCollection({
+  loader: glob({ pattern: "*.{md,mdx}", base: "./src/content/writings" }),
+  schema: z.object({
+    title: z.string().min(1),
+    // Bare YAML dates arrive as Date at midnight UTC, not as YYYY-MM-DD.
+    published: z.preprocess((value) => {
+      if (!(value instanceof Date)) return value;
+      const year = value.getUTCFullYear();
+      const month = String(value.getUTCMonth() + 1).padStart(2, "0");
+      const day = String(value.getUTCDate()).padStart(2, "0");
+      return `${year}-${month}-${day}`;
+    }, z.iso.date()),
+    description: z.string().min(1).optional(),
+  }),
+});
+
 export const collections = {
   "software-canon": softwareCanon,
   "personal-canon": personalCanon,
   resume: resumeEntry,
+  writings,
 };
