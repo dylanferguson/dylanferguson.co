@@ -5,9 +5,14 @@ const isHome = path === "/";
 /* One entry per nav item, so the href and the active check cannot drift.
    /personal-canon/ is deliberately absent — it renders noindex. */
 const navItems = [
+  { href: "/writings/", label: "Writings" },
   { href: "/software-canon/", label: "Software canon" },
   { href: "/resume/", label: "Résumé" },
 ];
+
+function isCurrentNav(href: string) {
+  return path === href || path.startsWith(href);
+}
 
 const brand =
   "shrink-0 font-medium no-underline aria-[current=page]:text-text aria-[current=page]:no-underline";
@@ -18,8 +23,9 @@ const navLink = "aria-[current=page]:text-text aria-[current=page]:no-underline"
     instead of sitting in flow.
 
     The type steps down twice on the way to the narrowest phones: `md` under
-    `xs`, and `sm` below 21rem, which is the width where the brand and the two
-    nav labels stop fitting on one line. */}
+    `xs`, and `sm` below 21rem, which is the width where the brand and the
+    three nav labels stop fitting on one line. The nav wraps rather than
+    overflowing once that budget is gone. */}
 <header
   class:list={[
     "flex items-baseline justify-between gap-6 text-lg text-muted max-xs:gap-3 max-xs:text-md max-[21rem]:text-sm print:hidden",
@@ -39,13 +45,13 @@ const navLink = "aria-[current=page]:text-text aria-[current=page]:no-underline"
       <a class={brand} href="/">Dylan Ferguson</a>
     )
   }
-  <nav class="ml-auto flex gap-4 max-xs:gap-3" aria-label="Primary">
+  <nav class="ml-auto flex flex-wrap justify-end gap-4 max-xs:gap-3" aria-label="Primary">
     {
       navItems.map((item) => (
         <a
           class={navLink}
           href={item.href}
-          aria-current={path === item.href ? "page" : undefined}
+          aria-current={isCurrentNav(item.href) ? "page" : undefined}
         >
           {item.label}
         </a>

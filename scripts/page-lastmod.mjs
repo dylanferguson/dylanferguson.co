@@ -33,6 +33,21 @@ const ROUTE_SOURCES = {
   ],
 };
 
+function routeSources(pathname) {
+  if (pathname === "/writings/") {
+    return ["src/pages/writings/index.astro", "src/content/writings"];
+  }
+  const post = pathname.match(/^\/writings\/([^/]+)\/$/);
+  if (post) {
+    const slug = post[1];
+    return [
+      `src/content/writings/${slug}.md`,
+      `src/content/writings/${slug}.mdx`,
+    ];
+  }
+  return ROUTE_SOURCES[pathname];
+}
+
 function git(args) {
   return execFileSync("git", args, {
     cwd: ROOT,
@@ -85,7 +100,7 @@ export function withLastmod(item) {
     );
     return item;
   }
-  const sources = ROUTE_SOURCES[pathname];
+  const sources = routeSources(pathname);
 
   if (!sources) {
     console.warn(
