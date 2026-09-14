@@ -1,6 +1,6 @@
 ---
 title: Hello world
-published: "2026-09-13"
+published: "2026-09"
 description: A first post, to prove the section exists.
 ---
 
