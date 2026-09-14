@@ -18,6 +18,8 @@ function isCurrentNav(href: string) {
 const brand =
   "shrink-0 font-medium no-underline aria-[current=page]:text-text aria-[current=page]:no-underline";
 const navLink = "aria-[current=page]:text-text aria-[current=page]:no-underline";
+const paletteTrigger =
+  "cursor-pointer border-0 bg-transparent p-0 font-mono text-sm text-faint hover:text-text focus-visible:rounded-[1px] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-text";
 ---
 
 {/* Site nav never prints. On the home page the header floats over the orb
@@ -45,17 +47,29 @@ const navLink = "aria-[current=page]:text-text aria-[current=page]:no-underline"
       <a class={brand} href="/">Dylan Ferguson</a>
     )
   }
-  <nav class="ml-auto flex flex-wrap justify-end gap-4 max-xs:gap-3" aria-label="Primary">
-    {
-      navItems.map((item) => (
-        <a
-          class={navLink}
-          href={item.href}
-          aria-current={isCurrentNav(item.href) ? "page" : undefined}
-        >
-          {item.label}
-        </a>
-      ))
-    }
-  </nav>
+  <div class="flex items-baseline gap-4 max-xs:gap-3">
+    <nav class="flex flex-wrap justify-end gap-4 max-xs:gap-3" aria-label="Primary">
+      {
+        navItems.map((item) => (
+          <a
+            class={navLink}
+            href={item.href}
+            aria-current={isCurrentNav(item.href) ? "page" : undefined}
+          >
+            {item.label}
+          </a>
+        ))
+      }
+    </nav>
+    <button
+      type="button"
+      class={paletteTrigger}
+      data-command-palette-open
+      aria-haspopup="dialog"
+      aria-controls="command-palette"
+      aria-label="Open command palette"
+    >
+      <kbd data-command-palette-hotkey>⌘K</kbd>
+    </button>
+  </div>
 </header>

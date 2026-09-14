@@ -167,7 +167,7 @@
   }
 
   @media (prefers-color-scheme: dark) {
-    :root {
+    :root:not(.theme-light) {
       --color-background: var(--dark-background);
       --color-text: var(--dark-text);
       --color-muted: var(--dark-muted);
@@ -178,8 +178,9 @@
   }
 
   /* Dark regardless of the visitor's OS setting — set on <html> via the
-     layout's `htmlClass`. Sits after the media query so it wins in light
-     mode, and before the print block so paper still outranks it. */
+     layout's `htmlClass`, or by the command palette. Sits after the media
+     query so it wins in light mode, and before the print block so paper
+     still outranks it. */
   .theme-dark {
     color-scheme: dark;
     --color-background: var(--dark-background);
@@ -188,6 +189,12 @@
     --color-faint: var(--dark-faint);
     --color-line: var(--dark-line);
     --color-hover: var(--dark-hover);
+  }
+
+  /* Force light against a dark OS. The media query skips this class, so
+     the @theme defaults stay put; this only restores color-scheme. */
+  .theme-light {
+    color-scheme: light;
   }
 
   /* Reading the breakpoint back keeps the tokens and the `max-xs`

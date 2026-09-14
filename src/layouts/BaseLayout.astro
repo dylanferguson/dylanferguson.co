@@ -1,7 +1,9 @@
 ---
 import { BUILD_COMMIT } from "astro:env/server";
 
+import { appearanceInitScript } from "../appearance";
 import { BUILD_TIME } from "../build-time";
+import CommandPalette from "../components/CommandPalette.astro";
 import "../styles/global.css";
 
 interface Props {
@@ -9,7 +11,8 @@ interface Props {
   bodyClass?: string;
   canonicalPath?: string;
   description?: string;
-  /* Lands on <html> — for `theme-dark`, which has to reach `color-scheme`. */
+  /* Lands on <html> — for `theme-dark` / `theme-light`, which have to
+     reach `color-scheme`. The command palette also writes these. */
   htmlClass?: string;
   lang?: string;
   noindex?: boolean;
@@ -49,6 +52,7 @@ const socialDescription = ogDescription ?? description;
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script is:inline set:html={appearanceInitScript}></script>
     <meta name="build-time" content={BUILD_TIME} />
     <meta name="build-commit" content={BUILD_COMMIT} />
     {noindex && <meta name="robots" content="noindex" />}
@@ -100,5 +104,6 @@ const socialDescription = ogDescription ?? description;
   </head>
   <body class={bodyClass}>
     <slot />
+    <CommandPalette />
   </body>
 </html>

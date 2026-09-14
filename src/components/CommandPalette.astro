@@ -1,0 +1,369 @@
+<dialog
+  id="command-palette"
+  class="command-palette print:hidden"
+  aria-label="Command palette"
+>
+  <div class="palette-shell">
+    <label class="palette-search">
+      <span class="sr-only">Search commands</span>
+      <svg
+        class="palette-search-icon"
+        viewBox="0 0 16 16"
+        aria-hidden="true"
+      >
+        <circle
+          cx="6.5"
+          cy="6.5"
+          r="4.5"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.25"
+        ></circle>
+        <path
+          d="M10 10l3.5 3.5"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.25"
+          stroke-linecap="round"
+        ></path>
+      </svg>
+      <input
+        id="command-palette-input"
+        type="text"
+        placeholder="Execute a command…"
+        autocomplete="off"
+        autocorrect="off"
+        spellcheck="false"
+        role="combobox"
+        aria-autocomplete="list"
+        aria-expanded="true"
+        aria-controls="command-palette-list"
+      />
+    </label>
+    <ul id="command-palette-list" role="listbox"></ul>
+  </div>
+</dialog>
+
+<style is:global>
+  .command-palette {
+    width: min(32rem, calc(100vw - 2rem));
+    max-height: min(28rem, calc(100dvh - 4rem));
+    margin: 18vh auto auto;
+    padding: 0;
+    overflow: hidden;
+    border: 1px solid var(--color-line);
+    border-radius: 0.5rem;
+    background: color-mix(in srgb, var(--color-background) 88%, transparent);
+    color: var(--color-text);
+    font-family: var(--font-mono);
+    font-size: var(--text-sm);
+    box-shadow: 0 18px 48px rgba(24, 24, 24, 0.16);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+  }
+
+  .command-palette::backdrop {
+    background: rgba(24, 24, 24, 0.28);
+  }
+
+  .theme-dark .command-palette {
+    box-shadow: 0 18px 48px rgba(0, 0, 0, 0.45);
+  }
+
+  .theme-dark .command-palette::backdrop {
+    background: rgba(0, 0, 0, 0.46);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not(.theme-light) .command-palette {
+      box-shadow: 0 18px 48px rgba(0, 0, 0, 0.45);
+    }
+
+    :root:not(.theme-light) .command-palette::backdrop {
+      background: rgba(0, 0, 0, 0.46);
+    }
+  }
+
+  .palette-shell {
+    display: flex;
+    max-height: min(28rem, calc(100dvh - 4rem));
+    flex-direction: column;
+  }
+
+  .palette-search {
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
+    border-bottom: 1px solid var(--color-line);
+    padding: 0.75rem 0.875rem;
+  }
+
+  .palette-search-icon {
+    width: 0.875rem;
+    height: 0.875rem;
+    flex-shrink: 0;
+    color: var(--color-muted);
+  }
+
+  .palette-search input {
+    width: 100%;
+    border: 0;
+    background: transparent;
+    color: inherit;
+    font: inherit;
+    outline: none;
+  }
+
+  .palette-search input::placeholder {
+    color: var(--color-faint);
+  }
+
+  #command-palette-list {
+    margin: 0;
+    max-height: 22rem;
+    overflow: auto;
+    overscroll-behavior: contain;
+    padding: 0.375rem;
+  }
+
+  .palette-item {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1rem;
+    border-radius: 0.25rem;
+    padding: 0.5rem 0.625rem;
+    cursor: default;
+  }
+
+  .palette-item[aria-selected="true"] {
+    background: var(--color-hover);
+  }
+
+  .palette-item-title {
+    min-width: 0;
+  }
+
+  .palette-item-shortcut {
+    flex-shrink: 0;
+    color: var(--color-faint);
+  }
+
+  [data-command-palette-hotkey] {
+    font: inherit;
+  }
+
+  .palette-empty {
+    padding: 0.875rem 0.75rem 1rem;
+    color: var(--color-muted);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .command-palette {
+      backdrop-filter: none;
+      -webkit-backdrop-filter: none;
+      background: var(--color-background);
+    }
+  }
+
+  @media print {
+    .command-palette {
+      display: none;
+    }
+  }
+</style>
+
+<script>
+  import { startAppearance } from "../appearance";
+  import { filterCommands, siteCommands } from "../commands";
+
+  (() => {
+    const paletteEl = document.querySelector<HTMLDialogElement>(
+      "#command-palette",
+    );
+    const inputEl = document.querySelector<HTMLInputElement>(
+      "#command-palette-input",
+    );
+    const listEl = document.querySelector<HTMLUListElement>(
+      "#command-palette-list",
+    );
+    if (!paletteEl || !inputEl || !listEl) return;
+    const palette = paletteEl;
+    const input = inputEl;
+    const list = listEl;
+    startAppearance();
+
+    let query = "";
+    let activeIndex = 0;
+
+    function matches() {
+      return filterCommands(siteCommands, query);
+    }
+
+    function highlight(): void {
+      const found = matches();
+      const items = list.querySelectorAll<HTMLElement>(".palette-item");
+      items.forEach((item, index) => {
+        item.setAttribute(
+          "aria-selected",
+          index === activeIndex ? "true" : "false",
+        );
+      });
+      const active = found[activeIndex];
+      if (active) {
+        input.setAttribute(
+          "aria-activedescendant",
+          `command-palette-option-${active.id}`,
+        );
+        items[activeIndex]?.scrollIntoView({ block: "nearest" });
+      } else {
+        input.removeAttribute("aria-activedescendant");
+      }
+    }
+
+    function paintList(): void {
+      const found = matches();
+      list.replaceChildren();
+      if (found.length === 0) {
+        activeIndex = 0;
+        const empty = document.createElement("li");
+        empty.className = "palette-empty";
+        empty.textContent = "No matching commands";
+        list.append(empty);
+        input.removeAttribute("aria-activedescendant");
+        return;
+      }
+      activeIndex = Math.min(activeIndex, found.length - 1);
+      found.forEach((command, index) => {
+        const item = document.createElement("li");
+        item.id = `command-palette-option-${command.id}`;
+        item.className = "palette-item";
+        item.setAttribute("role", "option");
+        const title = document.createElement("span");
+        title.className = "palette-item-title";
+        title.textContent = command.title;
+        item.append(title);
+        if (command.shortcut) {
+          const shortcut = document.createElement("span");
+          shortcut.className = "palette-item-shortcut";
+          shortcut.textContent = command.shortcut;
+          item.append(shortcut);
+        }
+        item.addEventListener("pointerenter", () => {
+          activeIndex = index;
+          highlight();
+        });
+        item.addEventListener("click", () => run(index));
+        list.append(item);
+      });
+      highlight();
+    }
+
+    function openPalette(): void {
+      if (palette.open) return;
+      query = "";
+      activeIndex = 0;
+      input.value = "";
+      paintList();
+      palette.showModal();
+      input.focus();
+    }
+
+    function closePalette(): void {
+      if (!palette.open) return;
+      palette.close();
+    }
+
+    function togglePalette(): void {
+      if (palette.open) closePalette();
+      else openPalette();
+    }
+
+    function run(index: number): void {
+      const command = matches()[index];
+      if (!command) return;
+      closePalette();
+      command.run();
+    }
+
+    function isPaletteHotkey(event: KeyboardEvent): boolean {
+      if (event.isComposing || event.altKey) return false;
+      const mod = event.metaKey || event.ctrlKey;
+      if (!mod) return false;
+      const key = event.key.toLowerCase();
+      if (key === "k") return !event.shiftKey;
+      if (key === "p") return event.shiftKey;
+      return false;
+    }
+
+    const apple = /Mac|iPhone|iPad/.test(navigator.platform);
+    const hotkeyLabel = apple ? "⌘K" : "Ctrl+K";
+    for (const node of document.querySelectorAll(
+      "[data-command-palette-hotkey]",
+    )) {
+      node.textContent = hotkeyLabel;
+    }
+
+    document.addEventListener("keydown", (event) => {
+      if (!isPaletteHotkey(event)) return;
+      event.preventDefault();
+      togglePalette();
+    });
+
+    document.addEventListener("click", (event) => {
+      const target = event.target;
+      if (!(target instanceof Element)) return;
+      if (!target.closest("[data-command-palette-open]")) return;
+      event.preventDefault();
+      togglePalette();
+    });
+
+    input.addEventListener("input", () => {
+      query = input.value;
+      activeIndex = 0;
+      paintList();
+    });
+
+    input.addEventListener("keydown", (event) => {
+      if (event.isComposing) return;
+      const found = matches();
+      if (event.key === "ArrowDown") {
+        event.preventDefault();
+        if (found.length === 0) return;
+        activeIndex = (activeIndex + 1) % found.length;
+        paintList();
+        return;
+      }
+      if (event.key === "ArrowUp") {
+        event.preventDefault();
+        if (found.length === 0) return;
+        activeIndex = (activeIndex - 1 + found.length) % found.length;
+        paintList();
+        return;
+      }
+      if (event.key === "Home") {
+        event.preventDefault();
+        activeIndex = 0;
+        paintList();
+        return;
+      }
+      if (event.key === "End") {
+        event.preventDefault();
+        if (found.length === 0) return;
+        activeIndex = found.length - 1;
+        paintList();
+        return;
+      }
+      if (event.key === "Enter") {
+        event.preventDefault();
+        run(activeIndex);
+      }
+    });
+
+    palette.addEventListener("close", () => {
+      query = "";
+      activeIndex = 0;
+      input.value = "";
+    });
+  })();
+</script>
