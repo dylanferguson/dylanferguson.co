@@ -1,3 +1,6 @@
+---
+import CommandPaletteTrigger from "./CommandPaletteTrigger.astro";
+---
 <style is:global>
   /* Visibility of the no-canvas fallback is driven by classes the
      inline scripts put on <html>, so it stays in CSS. */
@@ -40,16 +43,7 @@
       class="underline-offset-[0.25em] hover:decoration-[0.15em]"
       href="/">Let’s head home</a
     >.
-    <button
-      type="button"
-      class="ml-3 cursor-pointer border-0 bg-transparent p-0 font-mono text-faint hover:text-text focus-visible:rounded-[1px] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-text"
-      data-command-palette-open
-      aria-haspopup="dialog"
-      aria-controls="command-palette"
-      aria-label="Open command palette"
-    >
-      <kbd data-command-palette-hotkey>⌘K</kbd>
-    </button>
+    <CommandPaletteTrigger class="ml-3" />
   </p>
 </main>
 <script>
@@ -133,17 +127,15 @@
         ? height / 2
         : bounceBetween(startY + time * 41, minY, maxY);
 
-      context.fillStyle = getComputedStyle(document.documentElement)
-        .getPropertyValue("--color-text")
-        .trim();
+      /* Canvas 2d cannot paint `light-dark()` tokens. Body's used
+         colors are already resolved. */
+      context.fillStyle = getComputedStyle(document.body).color;
       context.fillText(glyph, x, y);
     }
 
     function draw(rawTime: number) {
       const time = reduceMotion ? 0 : (rawTime / 1000) * 3.6;
-      context.fillStyle = getComputedStyle(document.documentElement)
-        .getPropertyValue("--color-background")
-        .trim();
+      context.fillStyle = getComputedStyle(document.body).backgroundColor;
       context.fillRect(0, 0, width, height);
       drawGlyph(time);
       if (!reduceMotion) frame = requestAnimationFrame(draw);

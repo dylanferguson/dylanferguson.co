@@ -57,13 +57,14 @@
   --text-*: initial;
   --breakpoint-*: initial;
 
-  /* Colour. Dark, narrow and print re-declare these values below. */
-  --color-background: #f7f7f5;
-  --color-text: #181818;
-  --color-muted: rgba(24, 24, 24, 0.66);
-  --color-faint: rgba(24, 24, 24, 0.6);
-  --color-line: #dcdee2;
-  --color-hover: rgba(24, 24, 24, 0.06);
+  /* Colour. Dark is the second argument to `light-dark()`. Forced light
+     or dark is just `color-scheme` on `.theme-light` / `.theme-dark`. */
+  --color-background: light-dark(#f7f7f5, #181818);
+  --color-text: light-dark(#181818, #fff);
+  --color-muted: light-dark(rgba(24, 24, 24, 0.66), rgba(255, 255, 255, 0.66));
+  --color-faint: light-dark(rgba(24, 24, 24, 0.6), rgba(255, 255, 255, 0.46));
+  --color-line: light-dark(#dcdee2, rgba(255, 255, 255, 0.2));
+  --color-hover: light-dark(rgba(24, 24, 24, 0.06), rgba(255, 255, 255, 0.08));
 
   /* Type. Each size carries a default leading so `text-xl` is enough;
      compact labels still override with `/4` and `/5`. Display sizes
@@ -152,47 +153,15 @@
 @layer base {
   :root {
     color-scheme: light dark;
-
-    /* The dark palette, written once. Both the OS-preference branch and the
-       `.theme-dark` opt-in below only ever point the live tokens at these,
-       so a dark colour changes in exactly one place. Pages that want a
-       different dark mood (the home page's "void") override the live token
-       on top, rather than restating the palette. */
-    --dark-background: #181818;
-    --dark-text: #fff;
-    --dark-muted: rgba(255, 255, 255, 0.66);
-    --dark-faint: rgba(255, 255, 255, 0.46);
-    --dark-line: rgba(255, 255, 255, 0.2);
-    --dark-hover: rgba(255, 255, 255, 0.08);
   }
 
-  @media (prefers-color-scheme: dark) {
-    :root:not(.theme-light) {
-      --color-background: var(--dark-background);
-      --color-text: var(--dark-text);
-      --color-muted: var(--dark-muted);
-      --color-faint: var(--dark-faint);
-      --color-line: var(--dark-line);
-      --color-hover: var(--dark-hover);
-    }
-  }
-
-  /* Dark regardless of the visitor's OS setting — set on <html> via the
-     layout's `htmlClass`, or by the command palette. Sits after the media
-     query so it wins in light mode, and before the print block so paper
-     still outranks it. */
+  /* Forced appearance. Tokens already follow `color-scheme` via
+     `light-dark()`, so these only pick the scheme. Print still
+     outranks them. */
   .theme-dark {
     color-scheme: dark;
-    --color-background: var(--dark-background);
-    --color-text: var(--dark-text);
-    --color-muted: var(--dark-muted);
-    --color-faint: var(--dark-faint);
-    --color-line: var(--dark-line);
-    --color-hover: var(--dark-hover);
   }
 
-  /* Force light against a dark OS. The media query skips this class, so
-     the @theme defaults stay put; this only restores color-scheme. */
   .theme-light {
     color-scheme: light;
   }

@@ -8,7 +8,6 @@ export type Command = {
   id: string;
   title: string;
   keywords: readonly string[];
-  shortcut?: string;
   run: () => void;
 };
 

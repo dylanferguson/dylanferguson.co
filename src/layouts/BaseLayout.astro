@@ -3,7 +3,7 @@ import { BUILD_COMMIT } from "astro:env/server";
 
 import { appearanceInitScript } from "../appearance";
 import { BUILD_TIME } from "../build-time";
-import CommandPalette from "../components/CommandPalette.astro";
+import CommandPalette from "../components/CommandPalette.svelte";
 import "../styles/global.css";
 
 interface Props {
@@ -11,9 +11,6 @@ interface Props {
   bodyClass?: string;
   canonicalPath?: string;
   description?: string;
-  /* Lands on <html> — for `theme-dark` / `theme-light`, which have to
-     reach `color-scheme`. The command palette also writes these. */
-  htmlClass?: string;
   lang?: string;
   noindex?: boolean;
   /* Social card. Every page gets one from `title`/`description`; these only
@@ -32,7 +29,6 @@ const {
   bodyClass,
   canonicalPath,
   description,
-  htmlClass,
   lang = "en",
   noindex = false,
   ogDescription,
@@ -48,7 +44,7 @@ const socialDescription = ogDescription ?? description;
 ---
 
 <!doctype html>
-<html lang={lang} class={htmlClass}>
+<html lang={lang}>
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -104,6 +100,10 @@ const socialDescription = ogDescription ?? description;
   </head>
   <body class={bodyClass}>
     <slot />
-    <CommandPalette />
+    <CommandPalette client:load />
+    <script>
+      import { startAppearance } from "../appearance";
+      startAppearance();
+    </script>
   </body>
 </html>

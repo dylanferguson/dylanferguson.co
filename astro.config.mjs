@@ -2,6 +2,7 @@ import { rmSync } from "node:fs";
 
 import mdx from "@astrojs/mdx";
 import sitemap from "@astrojs/sitemap";
+import svelte from "@astrojs/svelte";
 import tailwindcss from "@tailwindcss/vite";
 import { defineConfig, envField } from "astro/config";
 
@@ -51,6 +52,7 @@ export default defineConfig({
   },
   integrations: [
     mdx(),
+    svelte(),
     omitPrivateWritings(),
     // /personal-canon/ renders with noindex, so keep it out of the sitemap too.
     // filter runs before serialize, so withLastmod never sees the excluded page.

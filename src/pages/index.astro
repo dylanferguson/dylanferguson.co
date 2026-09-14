@@ -54,27 +54,16 @@ import Layout from "../layouts/Layout.astro";
 
 <style is:global>
   html:root {
-    --scrim-solid: rgba(245, 245, 242, 0.97);
-    --scrim-middle: rgba(245, 245, 242, 0.78);
-  }
-
-  /* Dark mode here is a tuned "void": pure black, and muted lifted for
-     legibility against it. Only the two tokens that actually deviate are
-     restated — the rest of the palette still comes from global.css. */
-  @media (prefers-color-scheme: dark) {
-    html:root:not(.theme-light) {
-      --color-background: #000;
-      --color-muted: rgba(255, 255, 255, 0.72);
-      --scrim-solid: rgba(0, 0, 0, 0.97);
-      --scrim-middle: rgba(0, 0, 0, 0.75);
-    }
-  }
-
-  html.theme-dark {
-    --color-background: #000;
-    --color-muted: rgba(255, 255, 255, 0.72);
-    --scrim-solid: rgba(0, 0, 0, 0.97);
-    --scrim-middle: rgba(0, 0, 0, 0.75);
+    /* Dark mode here is a tuned "void": pure black, and muted lifted
+       for legibility against it. Only the tokens that actually deviate
+       are restated. */
+    --color-background: light-dark(#f7f7f5, #000);
+    --color-muted: light-dark(
+      rgba(24, 24, 24, 0.66),
+      rgba(255, 255, 255, 0.72)
+    );
+    --scrim-solid: light-dark(rgba(245, 245, 242, 0.97), rgba(0, 0, 0, 0.97));
+    --scrim-middle: light-dark(rgba(245, 245, 242, 0.78), rgba(0, 0, 0, 0.75));
   }
 
   html {

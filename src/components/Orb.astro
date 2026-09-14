@@ -23,23 +23,15 @@
   /* Scene tokens and the body-level wash the orb sits in — both reach
      outside this component, so they cannot be scoped. */
   html:root {
-    --stage-inner: rgba(255, 255, 255, 0.32);
-    --stage-middle: rgba(255, 255, 255, 0.1);
-    --orb-edge: transparent;
-  }
-
-  @media (prefers-color-scheme: dark) {
-    html:root:not(.theme-light) {
-      --stage-inner: rgba(255, 255, 255, 0.045);
-      --stage-middle: rgba(255, 255, 255, 0.015);
-      --orb-edge: rgba(0, 0, 0, 0.55);
-    }
-  }
-
-  html.theme-dark {
-    --stage-inner: rgba(255, 255, 255, 0.045);
-    --stage-middle: rgba(255, 255, 255, 0.015);
-    --orb-edge: rgba(0, 0, 0, 0.55);
+    --stage-inner: light-dark(
+      rgba(255, 255, 255, 0.32),
+      rgba(255, 255, 255, 0.045)
+    );
+    --stage-middle: light-dark(
+      rgba(255, 255, 255, 0.1),
+      rgba(255, 255, 255, 0.015)
+    );
+    --orb-edge: light-dark(transparent, rgba(0, 0, 0, 0.55));
   }
 
   /* Stage light: a faint pool of light behind the orb so it sits in
@@ -566,9 +558,11 @@
           "(prefers-reduced-motion: reduce)",
         ).matches;
 
-        document.addEventListener(APPEARANCE_CHANGE_EVENT, () => {
-          frame(reduced ? 0.6 : (performance.now() / 1000) * SPEED);
-        });
+        if (reduced) {
+          document.addEventListener(APPEARANCE_CHANGE_EVENT, () => {
+            frame(0.6);
+          });
+        }
 
         canvas.addEventListener("pointerdown", (e: PointerEvent) => {
           dragging = true;
