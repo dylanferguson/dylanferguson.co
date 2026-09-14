@@ -1,5 +1,10 @@
+import { WRITINGS } from "astro:env/server";
 import { getCollection, getEntry, render } from "astro:content";
 import type { CollectionEntry } from "astro:content";
+
+export function writingsEnabled() {
+  return WRITINGS;
+}
 
 export type Writing = {
   slug: string;

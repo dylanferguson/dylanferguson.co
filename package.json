@@ -9,7 +9,7 @@
     "build": "ASTRO_TELEMETRY_DISABLED=1 BUILD_COMMIT=$(git rev-parse --short=7 HEAD) astro build",
     "check": "ASTRO_TELEMETRY_DISABLED=1 astro check",
     "deploy": "wrangler deploy",
-    "dev": "ASTRO_TELEMETRY_DISABLED=1 BUILD_COMMIT=$(git rev-parse --short=7 HEAD) astro dev",
+    "dev": "ASTRO_TELEMETRY_DISABLED=1 BUILD_COMMIT=$(git rev-parse --short=7 HEAD) WRITINGS=true astro dev",
     "format": "oxfmt --write package.json 'data/**/*.json5' 'src/**/*.{astro,css,js,ts,tsx,md,mdx}' 'scripts/**/*.{js,mjs,ts}' 'public/**/*.{css,js,html}'",
     "lint": "oxlint src scripts",
     "prepare": "git config core.hooksPath .githooks",

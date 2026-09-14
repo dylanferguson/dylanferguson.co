@@ -1,10 +1,12 @@
 ---
+import { writingsEnabled } from "../writings";
+
 const path = Astro.url.pathname;
 const isHome = path === "/";
 
 /* /personal-canon/ is deliberately absent — it renders noindex. */
 const navItems = [
-  { href: "/writings/", label: "Writing" },
+  ...(writingsEnabled() ? [{ href: "/writings/", label: "Writing" }] : []),
   { href: "/software-canon/", label: "Software canon" },
   { href: "/resume/", label: "Résumé" },
 ];
@@ -23,7 +25,7 @@ const navLink = "aria-[current=page]:text-text aria-[current=page]:no-underline"
 
     The type steps down twice on the way to the narrowest phones: `md` under
     `xs`, and `sm` below 21rem, which is the width where the brand and the
-    three nav labels stop fitting on one line. */}
+    nav labels stop fitting on one line. */}
 <header
   class:list={[
     "flex items-baseline justify-between gap-6 text-lg text-muted max-xs:gap-3 max-xs:text-md max-[21rem]:text-sm print:hidden",
