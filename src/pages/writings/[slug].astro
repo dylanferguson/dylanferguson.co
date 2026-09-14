@@ -1,0 +1,38 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import { formatPublished, listWritings, loadWriting } from "../../writings";
+
+export async function getStaticPaths() {
+  const writings = await listWritings();
+  return writings.map((writing) => ({ params: { slug: writing.slug } }));
+}
+
+const slug = Astro.params.slug;
+if (!slug) throw new Error("Missing slug param");
+
+const loaded = await loadWriting(slug);
+if (!loaded) {
+  return Astro.redirect("/404/");
+}
+
+const { meta, Content } = loaded;
+---
+
+<Layout
+  title={meta.title}
+  description={meta.description}
+  ogType="article"
+  bodyClass="min-h-screen text-lg"
+>
+  <main class="mx-auto w-[min(100%_-_3rem,62ch)] pt-12 pb-18 max-lg:w-[min(100%_-_2rem,62ch)]">
+    <article>
+      <header class="mb-8">
+        <h1 class="text-3xl font-medium tracking-[-0.02em]">{meta.title}</h1>
+        <time class="mt-2 block text-muted" datetime={meta.published}>
+          {formatPublished(meta.published)}
+        </time>
+      </header>
+      <Content />
+    </article>
+  </main>
+</Layout>
