@@ -14,7 +14,6 @@
     "lint": "oxlint src scripts",
     "prepare": "git config core.hooksPath .githooks",
     "resume": "bash scripts/resume.sh",
-    "test": "node --test --experimental-strip-types --disable-warning=MODULE_TYPELESS_PACKAGE_JSON src/appearance.test.ts",
     "verify": "bash scripts/verify.sh"
   },
   "dependencies": {
