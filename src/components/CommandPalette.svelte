@@ -89,28 +89,6 @@
     activeIndex = 0;
   }
 
-  function optionIndex(event: Event): number | undefined {
-    const target = event.target;
-    if (!(target instanceof Element)) return;
-    const item = target.closest("[data-command-index]");
-    if (!(item instanceof HTMLElement)) return;
-    const index = Number(item.dataset.commandIndex);
-    if (!Number.isInteger(index)) return;
-    return index;
-  }
-
-  function onListPointerOver(event: PointerEvent) {
-    const index = optionIndex(event);
-    if (index === undefined) return;
-    activeIndex = index;
-  }
-
-  function onListClick(event: MouseEvent) {
-    const index = optionIndex(event);
-    if (index === undefined) return;
-    run(index);
-  }
-
   onMount(() => {
     const apple = /Mac|iPhone|iPad/.test(navigator.platform);
     const hotkeyLabel = apple ? "⌘K" : "Ctrl+K";
@@ -192,24 +170,25 @@
         onkeydown={onSearchKeydown}
       />
     </label>
-    <ul
-      id="command-palette-list"
-      role="listbox"
-      onpointerover={onListPointerOver}
-      onclick={onListClick}
-    >
+    <ul id="command-palette-list" role="listbox">
       {#if found.length === 0}
         <li class="palette-empty">No matching commands</li>
       {:else}
         {#each found as command, index (command.id)}
-          <li
-            id={`command-palette-option-${command.id}`}
-            class="palette-item"
-            role="option"
-            aria-selected={index === activeIndex}
-            data-command-index={index}
-          >
-            <span class="palette-item-title">{command.title}</span>
+          <li role="presentation">
+            <button
+              type="button"
+              id={`command-palette-option-${command.id}`}
+              class="palette-item"
+              role="option"
+              aria-selected={index === activeIndex}
+              onpointerenter={() => {
+                activeIndex = index;
+              }}
+              onclick={() => run(index)}
+            >
+              <span class="palette-item-title">{command.title}</span>
+            </button>
           </li>
         {/each}
       {/if}
@@ -280,14 +259,21 @@
     overflow: auto;
     overscroll-behavior: contain;
     padding: 0.375rem;
+    list-style: none;
   }
 
   .palette-item {
     display: flex;
+    width: 100%;
     align-items: baseline;
     gap: 1rem;
+    border: 0;
     border-radius: 0.25rem;
+    background: transparent;
     padding: 0.5rem 0.625rem;
+    color: inherit;
+    font: inherit;
+    text-align: left;
     cursor: default;
   }
 
