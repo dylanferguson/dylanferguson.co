@@ -1,6 +1,6 @@
 ---
 import Layout from "../../layouts/Layout.astro";
-import { listWritings, loadWriting } from "../../writings";
+import { formatPublished, listWritings, loadWriting } from "../../writings";
 
 export async function getStaticPaths() {
   const writings = await listWritings();
@@ -28,8 +28,8 @@ const { meta, Content } = loaded;
     <article>
       <header class="mb-8">
         <h1 class="text-3xl font-medium tracking-[-0.02em]">{meta.title}</h1>
-        <time class="mt-2 block tabular-nums text-muted" datetime={meta.published}>
-          {meta.published}
+        <time class="mt-2 block text-muted" datetime={meta.published}>
+          {formatPublished(meta.published)}
         </time>
       </header>
       <Content />

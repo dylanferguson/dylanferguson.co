@@ -1,6 +1,6 @@
 ---
 import Layout from "../../layouts/Layout.astro";
-import { listWritings } from "../../writings";
+import { formatPublished, listWritings } from "../../writings";
 
 const description = "Occasional notes and longer pieces.";
 const writings = await listWritings();
@@ -16,11 +16,8 @@ const writings = await listWritings();
       {
         writings.map((writing) => (
           <li class="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-            <time
-              class="shrink-0 tabular-nums text-muted"
-              datetime={writing.published}
-            >
-              {writing.published}
+            <time class="shrink-0 text-muted" datetime={writing.published}>
+              {formatPublished(writing.published)}
             </time>
             <a class="text-text" href={writing.href}>
               {writing.title}

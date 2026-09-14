@@ -11,6 +11,14 @@ export type Writing = {
 
 const kebabSlug = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 
+export function formatPublished(published: string): string {
+  return new Intl.DateTimeFormat("en-GB", {
+    month: "long",
+    year: "numeric",
+    timeZone: "UTC",
+  }).format(new Date(`${published}T00:00:00Z`));
+}
+
 function toWriting(entry: CollectionEntry<"writings">): Writing {
   const slug = entry.id;
   if (slug === "" || !kebabSlug.test(slug)) {
