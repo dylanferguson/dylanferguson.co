@@ -9,7 +9,7 @@ const { class: className } = Astro.props;
 <button
   type="button"
   class:list={[
-    "cursor-pointer border-0 bg-transparent p-0 font-mono text-sm text-faint hover:text-text focus-visible:rounded-[1px] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-text",
+    "inline-flex cursor-pointer items-center gap-1 border-0 bg-transparent p-0 font-mono text-sm text-faint hover:text-text focus-visible:rounded-[1px] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-text",
     className,
   ]}
   data-command-palette-open
@@ -17,19 +17,33 @@ const { class: className } = Astro.props;
   aria-controls="command-palette"
   aria-label="Open command palette"
 >
-  <kbd data-command-palette-hotkey>⌘K</kbd>
+  <kbd data-command-palette-modifier>⌘</kbd><kbd>K</kbd>
 </button>
 
 <script>
   const apple = /Mac|iPhone|iPad/.test(navigator.platform);
-  const hotkeyLabel = apple ? "⌘K" : "Ctrl+K";
-  for (const node of document.querySelectorAll("[data-command-palette-hotkey]")) {
-    node.textContent = hotkeyLabel;
+  for (const node of document.querySelectorAll("[data-command-palette-modifier]")) {
+    node.textContent = apple ? "⌘" : "Ctrl";
   }
 </script>
 
 <style>
   kbd {
+    display: inline-grid;
+    place-items: center;
+    min-width: 1.5em;
+    height: 1.5em;
+    padding: 0 0.35em;
+    border: 1px solid var(--color-line);
+    border-radius: 0.3em;
+    background: var(--color-background);
+    box-shadow: 0 1px 0 var(--color-line);
     font: inherit;
+    line-height: 1;
+  }
+
+  button:active kbd {
+    transform: translateY(1px);
+    box-shadow: none;
   }
 </style>

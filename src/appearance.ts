@@ -1,3 +1,5 @@
+import { currentTheme } from "./themes";
+
 type Appearance = "light" | "dark";
 export type AppearancePreference = Appearance | "system";
 
@@ -44,8 +46,14 @@ function writePreference(preference: AppearancePreference): void {
   }
 }
 
+function effectiveAppearance(preference: AppearancePreference): Appearance {
+  return (
+    currentTheme().colorScheme ?? resolveAppearance(preference, systemIsDark())
+  );
+}
+
 function applyPreference(preference: AppearancePreference): Appearance {
-  const appearance = resolveAppearance(preference, systemIsDark());
+  const appearance = effectiveAppearance(preference);
   const root = document.documentElement;
   root.classList.toggle(THEME_DARK_CLASS, preference === "dark");
   root.classList.toggle(THEME_LIGHT_CLASS, preference === "light");
@@ -63,7 +71,7 @@ function currentPreference(): AppearancePreference {
 }
 
 export function isDarkAppearance(): boolean {
-  return resolveAppearance(currentPreference(), systemIsDark()) === "dark";
+  return effectiveAppearance(currentPreference()) === "dark";
 }
 
 export function setPreference(preference: AppearancePreference): Appearance {
@@ -72,7 +80,9 @@ export function setPreference(preference: AppearancePreference): Appearance {
 }
 
 export function toggleAppearance(): Appearance {
-  return setPreference(isDarkAppearance() ? "light" : "dark");
+  const preferenceIsDark =
+    resolveAppearance(currentPreference(), systemIsDark()) === "dark";
+  return setPreference(preferenceIsDark ? "light" : "dark");
 }
 
 export function startAppearance(): void {

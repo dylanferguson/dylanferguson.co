@@ -4,11 +4,12 @@
   import { filterCommands, siteCommands } from "../commands";
 
   let query = $state("");
+  let commands = $state(siteCommands);
   let activeIndex = $state(0);
   let palette: HTMLDialogElement | undefined = $state();
   let search: HTMLInputElement | undefined = $state();
 
-  const found = $derived(filterCommands(siteCommands, query));
+  const found = $derived(filterCommands(commands, query));
   const active = $derived(found[activeIndex]);
 
   $effect(() => {
@@ -20,6 +21,7 @@
 
   function openPalette() {
     if (!palette || palette.open) return;
+    commands = siteCommands.filter((command) => command.available?.() ?? true);
     query = "";
     activeIndex = 0;
     palette.showModal();
@@ -84,11 +86,6 @@
     }
   }
 
-  function onClose() {
-    query = "";
-    activeIndex = 0;
-  }
-
   onMount(() => {
     function onDocumentKeydown(event: KeyboardEvent) {
       if (!isPaletteHotkey(event)) return;
@@ -118,7 +115,6 @@
   id="command-palette"
   class="command-palette mx-auto mt-[18vh] mb-auto overflow-hidden rounded-lg border border-line p-0 font-mono text-sm/[inherit] text-text print:hidden"
   aria-label="Command palette"
-  onclose={onClose}
 >
   <div class="palette-shell flex flex-col">
     <label class="flex items-center gap-2.5 border-b border-line px-3.5 py-3">
@@ -144,7 +140,9 @@
           stroke-linecap="round"
         ></path>
       </svg>
+      <!-- Redundant tabindex: Astro's audit ignores inputs' native tabIndex 0. -->
       <input
+        tabindex="0"
         bind:this={search}
         bind:value={query}
         oninput={() => {

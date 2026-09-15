@@ -47,7 +47,7 @@ import CommandPaletteTrigger from "./CommandPaletteTrigger.astro";
   </p>
 </main>
 <script>
-  import { APPEARANCE_CHANGE_EVENT } from "../appearance";
+  import { effectsActive, watchEffects } from "../effects";
 
   (() => {
     const mountTarget = document.querySelector<HTMLElement>("#shrug");
@@ -93,7 +93,6 @@ import CommandPaletteTrigger from "./CommandPaletteTrigger.astro";
       canvas.width = Math.round(width * pixelRatio);
       canvas.height = Math.round(height * pixelRatio);
       context.setTransform(pixelRatio, 0, 0, pixelRatio, 0, 0);
-      if (reduceMotion) draw(0);
     }
 
     function drawGlyph(time: number) {
@@ -141,22 +140,17 @@ import CommandPaletteTrigger from "./CommandPaletteTrigger.astro";
       if (!reduceMotion) frame = requestAnimationFrame(draw);
     }
 
-    addEventListener("resize", resize);
-    document.addEventListener(APPEARANCE_CHANGE_EVENT, () => {
-      if (reduceMotion) draw(0);
-    });
-    document.addEventListener("visibilitychange", () => {
-      if (document.hidden) {
-        cancelAnimationFrame(frame);
-      } else if (!reduceMotion) {
-        frame = requestAnimationFrame(draw);
-      }
-    });
+    function syncAnimation() {
+      cancelAnimationFrame(frame);
+      if (!effectsActive()) return;
+      resize();
+      draw(performance.now());
+    }
 
-    resize();
-    draw(performance.now());
+    addEventListener("resize", syncAnimation);
+    watchEffects(syncAnimation);
     document.fonts?.ready.then(() => {
-      if (reduceMotion) draw(0);
+      if (reduceMotion && effectsActive()) draw(0);
     });
     document.documentElement.classList.add("render-ready");
   })();

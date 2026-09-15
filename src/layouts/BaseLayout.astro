@@ -5,6 +5,7 @@ import { appearanceInitScript } from "../appearance";
 import { BUILD_TIME } from "../build-time";
 import CommandPalette from "../components/CommandPalette.svelte";
 import "../styles/global.css";
+import { themeInitScript } from "../themes";
 
 interface Props {
   /* Type and page-level layout that has to land on <body> itself. */
@@ -48,7 +49,7 @@ const socialDescription = ogDescription ?? description;
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <script is:inline set:html={appearanceInitScript}></script>
+    <script is:inline set:html={appearanceInitScript + themeInitScript}></script>
     <meta name="build-time" content={BUILD_TIME} />
     <meta name="build-commit" content={BUILD_COMMIT} />
     {noindex && <meta name="robots" content="noindex" />}

@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import "./themes/cs-professor.css";
 /* Tailwind scans the whole project by default, so build scripts get read for
    class names too. Nothing in scripts/ ships to the browser, and a stray
    class-like token there would leak real rules into this bundle — adding a file
@@ -164,6 +165,16 @@
 
   .theme-light {
     color-scheme: light;
+  }
+
+  @media screen {
+    :root[data-theme-color-scheme="light"] {
+      color-scheme: light;
+    }
+
+    :root[data-theme-color-scheme="dark"] {
+      color-scheme: dark;
+    }
   }
 
   /* Reading the breakpoint back keeps the tokens and the `max-xs`
