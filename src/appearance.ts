@@ -1,4 +1,4 @@
-export type Appearance = "light" | "dark";
+type Appearance = "light" | "dark";
 export type AppearancePreference = Appearance | "system";
 
 export const APPEARANCE_CHANGE_EVENT = "appearancechange";
@@ -7,21 +7,17 @@ const STORAGE_KEY = "appearance";
 const THEME_DARK_CLASS = "theme-dark";
 const THEME_LIGHT_CLASS = "theme-light";
 
-export function parsePreference(raw: string | null): AppearancePreference {
+function parsePreference(raw: string | null): AppearancePreference {
   if (raw === "light" || raw === "dark") return raw;
   return "system";
 }
 
-export function resolveAppearance(
+function resolveAppearance(
   preference: AppearancePreference,
   systemIsDark: boolean,
 ): Appearance {
   if (preference === "system") return systemIsDark ? "dark" : "light";
   return preference;
-}
-
-export function oppositeAppearance(appearance: Appearance): Appearance {
-  return appearance === "dark" ? "light" : "dark";
 }
 
 function systemIsDark(): boolean {
@@ -51,25 +47,23 @@ function writePreference(preference: AppearancePreference): void {
 function applyPreference(preference: AppearancePreference): Appearance {
   const appearance = resolveAppearance(preference, systemIsDark());
   const root = document.documentElement;
-  root.classList.toggle(
-    THEME_DARK_CLASS,
-    preference !== "system" && appearance === "dark",
-  );
-  root.classList.toggle(
-    THEME_LIGHT_CLASS,
-    preference !== "system" && appearance === "light",
-  );
+  root.classList.toggle(THEME_DARK_CLASS, preference === "dark");
+  root.classList.toggle(THEME_LIGHT_CLASS, preference === "light");
   document.dispatchEvent(
     new CustomEvent(APPEARANCE_CHANGE_EVENT, { detail: { appearance } }),
   );
   return appearance;
 }
 
-export function isDarkAppearance(): boolean {
+function currentPreference(): AppearancePreference {
   const root = document.documentElement;
-  if (root.classList.contains(THEME_LIGHT_CLASS)) return false;
-  if (root.classList.contains(THEME_DARK_CLASS)) return true;
-  return systemIsDark();
+  if (root.classList.contains(THEME_LIGHT_CLASS)) return "light";
+  if (root.classList.contains(THEME_DARK_CLASS)) return "dark";
+  return "system";
+}
+
+export function isDarkAppearance(): boolean {
+  return resolveAppearance(currentPreference(), systemIsDark()) === "dark";
 }
 
 export function setPreference(preference: AppearancePreference): Appearance {
@@ -78,8 +72,7 @@ export function setPreference(preference: AppearancePreference): Appearance {
 }
 
 export function toggleAppearance(): Appearance {
-  const current = resolveAppearance(readPreference(), systemIsDark());
-  return setPreference(oppositeAppearance(current));
+  return setPreference(isDarkAppearance() ? "light" : "dark");
 }
 
 export function startAppearance(): void {
@@ -87,7 +80,7 @@ export function startAppearance(): void {
   window
     .matchMedia("(prefers-color-scheme: dark)")
     .addEventListener("change", () => {
-      if (readPreference() === "system") applyPreference("system");
+      if (currentPreference() === "system") applyPreference("system");
     });
 }
 

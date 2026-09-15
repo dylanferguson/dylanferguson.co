@@ -1,5 +1,36 @@
 import { expect, test } from "@playwright/test";
 
+test("appearance stays selected when storage is blocked", async ({ page }) => {
+  await page.addInitScript(() => {
+    Storage.prototype.setItem = () => {
+      throw new DOMException("Storage is blocked", "SecurityError");
+    };
+  });
+  await page.goto("/");
+  await expect(
+    page.locator("astro-island:has(#command-palette)"),
+  ).not.toHaveAttribute("ssr");
+
+  const trigger = page.getByRole("button", { name: "Open command palette" });
+  const toggle = page.getByRole("option", { name: "Toggle Light/Dark Mode" });
+  await trigger.click();
+  await toggle.click();
+  await expect(page.locator("html")).toHaveCSS("color-scheme", "dark");
+  await trigger.click();
+  await toggle.click();
+  await expect(page.locator("html")).toHaveCSS("color-scheme", "light");
+
+  await page.emulateMedia({ colorScheme: "dark" });
+  // Let the media change event run before checking the retained preference.
+  await page.evaluate(
+    () =>
+      new Promise<void>((resolve) => {
+        requestAnimationFrame(() => requestAnimationFrame(() => resolve()));
+      }),
+  );
+  await expect(page.locator("html")).toHaveCSS("color-scheme", "light");
+});
+
 test("keyboard commands change appearance and persist after reload", async ({
   page,
 }) => {
