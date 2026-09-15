@@ -116,14 +116,18 @@
 <dialog
   bind:this={palette}
   id="command-palette"
-  class="command-palette print:hidden"
+  class="command-palette mx-auto mt-[18vh] mb-auto overflow-hidden rounded-lg border border-line p-0 font-mono text-sm/[inherit] text-text print:hidden"
   aria-label="Command palette"
   onclose={onClose}
 >
-  <div class="palette-shell">
-    <label class="palette-search">
+  <div class="palette-shell flex flex-col">
+    <label class="flex items-center gap-2.5 border-b border-line px-3.5 py-3">
       <span class="sr-only">Search commands</span>
-      <svg class="palette-search-icon" viewBox="0 0 16 16" aria-hidden="true">
+      <svg
+        class="size-3.5 shrink-0 text-muted"
+        viewBox="0 0 16 16"
+        aria-hidden="true"
+      >
         <circle
           cx="6.5"
           cy="6.5"
@@ -147,6 +151,7 @@
           activeIndex = 0;
         }}
         id="command-palette-input"
+        class="w-full border-0 bg-transparent text-inherit outline-none placeholder:text-faint"
         type="text"
         placeholder="Execute a command…"
         autocomplete="off"
@@ -162,16 +167,20 @@
         onkeydown={onSearchKeydown}
       />
     </label>
-    <ul id="command-palette-list" role="listbox">
+    <ul
+      id="command-palette-list"
+      class="m-0 max-h-88 list-none overflow-auto overscroll-contain p-1.5"
+      role="listbox"
+    >
       {#if found.length === 0}
-        <li class="palette-empty">No matching commands</li>
+        <li class="px-3 pt-3.5 pb-4 text-muted">No matching commands</li>
       {:else}
         {#each found as command, index (command.id)}
           <li role="presentation">
             <button
               type="button"
               id={`command-palette-option-${command.id}`}
-              class="palette-item"
+              class="flex w-full cursor-default items-baseline gap-4 rounded border-0 bg-transparent px-2.5 py-2 text-left text-inherit aria-selected:bg-hover"
               role="option"
               aria-selected={index === activeIndex}
               onpointerenter={() => {
@@ -179,7 +188,7 @@
               }}
               onclick={() => run(index)}
             >
-              <span class="palette-item-title">{command.title}</span>
+              <span class="min-w-0">{command.title}</span>
             </button>
           </li>
         {/each}
@@ -189,110 +198,29 @@
 </dialog>
 
 <style>
-  :global(.command-palette) {
-    width: min(32rem, calc(100vw - 2rem));
+  .command-palette,
+  .palette-shell {
     max-height: min(28rem, calc(100dvh - 4rem));
-    margin: 18vh auto auto;
-    padding: 0;
-    overflow: hidden;
-    border: 1px solid var(--color-line);
-    border-radius: 0.5rem;
+  }
+
+  .command-palette {
+    width: min(32rem, calc(100vw - 2rem));
     background: color-mix(in srgb, var(--color-background) 88%, transparent);
-    color: var(--color-text);
-    font-family: var(--font-mono);
-    font-size: var(--text-sm);
     box-shadow: 0 18px 48px
       light-dark(rgba(24, 24, 24, 0.16), rgba(0, 0, 0, 0.45));
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
   }
 
-  :global(.command-palette::backdrop) {
+  .command-palette::backdrop {
     background: light-dark(rgba(24, 24, 24, 0.28), rgba(0, 0, 0, 0.46));
   }
 
-  .palette-shell {
-    display: flex;
-    max-height: min(28rem, calc(100dvh - 4rem));
-    flex-direction: column;
-  }
-
-  .palette-search {
-    display: flex;
-    align-items: center;
-    gap: 0.625rem;
-    border-bottom: 1px solid var(--color-line);
-    padding: 0.75rem 0.875rem;
-  }
-
-  .palette-search-icon {
-    width: 0.875rem;
-    height: 0.875rem;
-    flex-shrink: 0;
-    color: var(--color-muted);
-  }
-
-  .palette-search input {
-    width: 100%;
-    border: 0;
-    background: transparent;
-    color: inherit;
-    font: inherit;
-    outline: none;
-  }
-
-  .palette-search input::placeholder {
-    color: var(--color-faint);
-  }
-
-  #command-palette-list {
-    margin: 0;
-    max-height: 22rem;
-    overflow: auto;
-    overscroll-behavior: contain;
-    padding: 0.375rem;
-    list-style: none;
-  }
-
-  .palette-item {
-    display: flex;
-    width: 100%;
-    align-items: baseline;
-    gap: 1rem;
-    border: 0;
-    border-radius: 0.25rem;
-    background: transparent;
-    padding: 0.5rem 0.625rem;
-    color: inherit;
-    font: inherit;
-    text-align: left;
-    cursor: default;
-  }
-
-  .palette-item[aria-selected="true"] {
-    background: var(--color-hover);
-  }
-
-  .palette-item-title {
-    min-width: 0;
-  }
-
-  .palette-empty {
-    padding: 0.875rem 0.75rem 1rem;
-    color: var(--color-muted);
-  }
-
   @media (prefers-reduced-motion: reduce) {
-    :global(.command-palette) {
+    .command-palette {
       backdrop-filter: none;
       -webkit-backdrop-filter: none;
       background: var(--color-background);
-    }
-  }
-
-  @media print {
-    :global(.command-palette) {
-      display: none;
     }
   }
 </style>
