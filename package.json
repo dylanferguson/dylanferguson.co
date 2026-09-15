@@ -12,6 +12,7 @@
     "dev": "ASTRO_TELEMETRY_DISABLED=1 BUILD_COMMIT=$(git rev-parse --short=7 HEAD) WRITINGS=true astro dev",
     "format": "oxfmt --write package.json playwright.config.ts 'tests/**/*.{ts,mjs}' 'data/**/*.json5' 'src/**/*.{astro,css,js,ts,tsx,svelte,md,mdx}' 'scripts/**/*.{js,mjs,ts}' 'public/**/*.{css,js,html}'",
     "lint": "oxlint src scripts tests playwright.config.ts",
+    "lint:check": "pnpm lint && oxfmt --check package.json playwright.config.ts 'tests/**/*.{ts,mjs}' 'data/**/*.json5' 'src/**/*.{astro,css,js,ts,tsx,svelte,md,mdx}' 'scripts/**/*.{js,mjs,ts}' 'public/**/*.{css,js,html}'",
     "prepare": "git config core.hooksPath .githooks",
     "resume": "bash scripts/resume.sh",
     "test:e2e": "playwright test",
