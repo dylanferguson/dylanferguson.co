@@ -19,3 +19,17 @@ const { class: className } = Astro.props;
 >
   <kbd data-command-palette-hotkey>⌘K</kbd>
 </button>
+
+<script>
+  const apple = /Mac|iPhone|iPad/.test(navigator.platform);
+  const hotkeyLabel = apple ? "⌘K" : "Ctrl+K";
+  for (const node of document.querySelectorAll("[data-command-palette-hotkey]")) {
+    node.textContent = hotkeyLabel;
+  }
+</script>
+
+<style>
+  kbd {
+    font: inherit;
+  }
+</style>

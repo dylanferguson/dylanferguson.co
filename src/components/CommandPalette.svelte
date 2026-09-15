@@ -90,14 +90,6 @@
   }
 
   onMount(() => {
-    const apple = /Mac|iPhone|iPad/.test(navigator.platform);
-    const hotkeyLabel = apple ? "⌘K" : "Ctrl+K";
-    for (const node of document.querySelectorAll(
-      "[data-command-palette-hotkey]",
-    )) {
-      node.textContent = hotkeyLabel;
-    }
-
     function onDocumentKeydown(event: KeyboardEvent) {
       if (!isPaletteHotkey(event)) return;
       event.preventDefault();
@@ -283,10 +275,6 @@
 
   .palette-item-title {
     min-width: 0;
-  }
-
-  :global([data-command-palette-hotkey]) {
-    font: inherit;
   }
 
   .palette-empty {
