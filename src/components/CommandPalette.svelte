@@ -140,7 +140,9 @@
           stroke-linecap="round"
         ></path>
       </svg>
+      <!-- Redundant tabindex: Astro's audit ignores inputs' native tabIndex 0. -->
       <input
+        tabindex="0"
         bind:this={search}
         bind:value={query}
         oninput={() => {
