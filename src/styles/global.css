@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import "./themes/plain-html.css";
 @import "./themes/cs-professor.css";
 /* Tailwind scans the whole project by default, so build scripts get read for
    class names too. Nothing in scripts/ ships to the browser, and a stray

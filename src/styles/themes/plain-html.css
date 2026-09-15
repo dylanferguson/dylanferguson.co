@@ -1,0 +1,118 @@
+/* Every non-default theme dresses the site up from unstyled HTML. `:where`
+   keeps this at the themes' own specificity, so they win by import order. */
+@media screen {
+  html:root:where([data-theme]):not([data-theme="default"]) {
+    height: auto;
+
+    /* Component-scoped entrance animations must not hide plain content. */
+    *,
+    *::before,
+    *::after {
+      animation: none !important;
+      transition: none !important;
+    }
+
+    /* Restore browser defaults only in page content, preserving the dialog,
+       vector icons, hidden content, and screen-reader labels. */
+    :where(
+      body,
+      body > header,
+      body > header *,
+      main,
+      main *,
+      body > footer,
+      body > footer *
+    ):not(:where(svg, svg *, .sr-only, [hidden])) {
+      all: revert;
+    }
+
+    body {
+      overflow-wrap: anywhere;
+    }
+
+    :where(body, .hud)::before,
+    :where(body, .hud)::after {
+      content: none;
+    }
+
+    :where(
+      [data-orb],
+      [data-orb] + [aria-hidden],
+      #shrug,
+      [data-theme-font-credit]
+    ) {
+      display: none;
+    }
+
+    :where(nav a) {
+      margin-right: 1em;
+    }
+
+    :where(body > header > div) {
+      display: flex;
+      align-items: baseline;
+      flex-wrap: wrap;
+      gap: 0.5em;
+    }
+
+    :where(img, video) {
+      max-width: 100%;
+      height: auto;
+    }
+
+    :where(pre) {
+      white-space: pre-wrap;
+    }
+
+    :where(dd, li, p) > span + span {
+      margin-left: 0.35em;
+    }
+
+    a > svg {
+      display: inline;
+      vertical-align: middle;
+    }
+
+    /* Keep the existing excerpt control in the list gutter. */
+    li:has(.passage) {
+      position: relative;
+      list-style: none;
+    }
+
+    .passage summary {
+      position: absolute;
+      top: 0;
+      left: -1.25em;
+      width: 1em;
+      list-style-position: inside;
+      cursor: pointer;
+    }
+
+    .passage-marker {
+      display: none;
+    }
+
+    .passage summary::-webkit-details-marker {
+      display: revert;
+    }
+
+    .passage-text p {
+      white-space: pre-line;
+    }
+
+    main:has(#shrug) > h1 {
+      all: revert;
+    }
+
+    #command-palette {
+      border-radius: 0;
+      box-shadow: none;
+      backdrop-filter: none;
+      -webkit-backdrop-filter: none;
+    }
+
+    #command-palette [role="option"] {
+      border-radius: 0;
+    }
+  }
+}
