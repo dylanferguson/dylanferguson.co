@@ -24,7 +24,10 @@ pnpm build      # write dist/
 pnpm verify     # types, lint, build, résumé PDF freshness
 pnpm resume     # print /resume/ to public/resume.pdf
 pnpm format     # format source and data files
+pnpm test:e2e   # build and run command palette tests in Chromium
 ```
+
+Before the first browser test run, install Chromium's headless shell with `pnpm exec playwright install chromium --only-shell`.
 
 `pnpm install` points git at `.githooks/`. Commits then run `pnpm verify`.
 

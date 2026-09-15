@@ -2,6 +2,8 @@ dist/
 .astro/
 .hugo_build.lock
 node_modules/
+playwright-report/
+test-results/
 .wrangler/
 .env*
 .cache/
