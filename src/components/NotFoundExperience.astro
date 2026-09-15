@@ -1,8 +1,8 @@
+---
+import CommandPaletteTrigger from "./CommandPaletteTrigger.astro";
+---
 <style is:global>
-  /* Forced dark comes from `theme-dark` on <html> (see 404.astro and
-     global.css), so the palette is not restated here.
-
-     Visibility of the no-canvas fallback is driven by classes the
+  /* Visibility of the no-canvas fallback is driven by classes the
      inline scripts put on <html>, so it stays in CSS. */
   .fallback-visible .fallback {
     visibility: visible;
@@ -43,9 +43,12 @@
       class="underline-offset-[0.25em] hover:decoration-[0.15em]"
       href="/">Let’s head home</a
     >.
+    <CommandPaletteTrigger class="ml-3" />
   </p>
 </main>
 <script>
+  import { APPEARANCE_CHANGE_EVENT } from "../appearance";
+
   (() => {
     const mountTarget = document.querySelector<HTMLElement>("#shrug");
     if (!mountTarget) return;
@@ -124,19 +127,24 @@
         ? height / 2
         : bounceBetween(startY + time * 41, minY, maxY);
 
-      context.fillStyle = "#fff";
+      /* Canvas 2d cannot paint `light-dark()` tokens. Body's used
+         colors are already resolved. */
+      context.fillStyle = getComputedStyle(document.body).color;
       context.fillText(glyph, x, y);
     }
 
     function draw(rawTime: number) {
       const time = reduceMotion ? 0 : (rawTime / 1000) * 3.6;
-      context.fillStyle = "#000";
+      context.fillStyle = getComputedStyle(document.body).backgroundColor;
       context.fillRect(0, 0, width, height);
       drawGlyph(time);
       if (!reduceMotion) frame = requestAnimationFrame(draw);
     }
 
     addEventListener("resize", resize);
+    document.addEventListener(APPEARANCE_CHANGE_EVENT, () => {
+      if (reduceMotion) draw(0);
+    });
     document.addEventListener("visibilitychange", () => {
       if (document.hidden) {
         cancelAnimationFrame(frame);

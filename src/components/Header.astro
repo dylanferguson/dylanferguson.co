@@ -1,6 +1,8 @@
 ---
 import { writingsEnabled } from "../writings";
 
+import CommandPaletteTrigger from "./CommandPaletteTrigger.astro";
+
 const path = Astro.url.pathname;
 const isHome = path === "/";
 
@@ -45,17 +47,20 @@ const navLink = "aria-[current=page]:text-text aria-[current=page]:no-underline"
       <a class={brand} href="/">Dylan Ferguson</a>
     )
   }
-  <nav class="ml-auto flex flex-wrap justify-end gap-4 max-xs:gap-3" aria-label="Primary">
-    {
-      navItems.map((item) => (
-        <a
-          class={navLink}
-          href={item.href}
-          aria-current={isCurrentNav(item.href) ? "page" : undefined}
-        >
-          {item.label}
-        </a>
-      ))
-    }
-  </nav>
+  <div class="flex items-baseline gap-4 max-xs:gap-3">
+    <nav class="flex flex-wrap justify-end gap-4 max-xs:gap-3" aria-label="Primary">
+      {
+        navItems.map((item) => (
+          <a
+            class={navLink}
+            href={item.href}
+            aria-current={isCurrentNav(item.href) ? "page" : undefined}
+          >
+            {item.label}
+          </a>
+        ))
+      }
+    </nav>
+    <CommandPaletteTrigger />
+  </div>
 </header>

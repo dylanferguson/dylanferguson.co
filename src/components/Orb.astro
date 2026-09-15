@@ -23,17 +23,15 @@
   /* Scene tokens and the body-level wash the orb sits in — both reach
      outside this component, so they cannot be scoped. */
   html:root {
-    --stage-inner: rgba(255, 255, 255, 0.32);
-    --stage-middle: rgba(255, 255, 255, 0.1);
-    --orb-edge: transparent;
-  }
-
-  @media (prefers-color-scheme: dark) {
-    html:root {
-      --stage-inner: rgba(255, 255, 255, 0.045);
-      --stage-middle: rgba(255, 255, 255, 0.015);
-      --orb-edge: rgba(0, 0, 0, 0.55);
-    }
+    --stage-inner: light-dark(
+      rgba(255, 255, 255, 0.32),
+      rgba(255, 255, 255, 0.045)
+    );
+    --stage-middle: light-dark(
+      rgba(255, 255, 255, 0.1),
+      rgba(255, 255, 255, 0.015)
+    );
+    --orb-edge: light-dark(transparent, rgba(0, 0, 0, 0.55));
   }
 
   /* Stage light: a faint pool of light behind the orb so it sits in
@@ -130,6 +128,11 @@
 </style>
 
     <script>
+      import {
+        APPEARANCE_CHANGE_EVENT,
+        isDarkAppearance,
+      } from "../appearance";
+
       interface Dot {
         a?: number;
         halo?: number;
@@ -195,7 +198,6 @@
         const drawingContext = canvas.getContext("2d");
         if (!drawingContext) return;
         const ctx = drawingContext;
-        const prefersDark = window.matchMedia("(prefers-color-scheme: dark)");
 
         // Deterministic hash in [0, 1)
         function hashD(a: number, b: number) {
@@ -229,7 +231,7 @@
         // opacity instead of inverted tone.
         function paint(dots: Dot[]) {
           dots.sort((a, b) => a.z - b.z);
-          const isDark = prefersDark.matches;
+          const isDark = isDarkAppearance();
           for (const d of dots) {
             const pathAlpha = d.a ?? 1;
             const alpha =
@@ -555,6 +557,12 @@
         const reduced = window.matchMedia(
           "(prefers-reduced-motion: reduce)",
         ).matches;
+
+        if (reduced) {
+          document.addEventListener(APPEARANCE_CHANGE_EVENT, () => {
+            frame(0.6);
+          });
+        }
 
         canvas.addEventListener("pointerdown", (e: PointerEvent) => {
           dragging = true;

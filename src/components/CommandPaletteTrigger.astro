@@ -1,0 +1,35 @@
+---
+interface Props {
+  class?: string;
+}
+
+const { class: className } = Astro.props;
+---
+
+<button
+  type="button"
+  class:list={[
+    "cursor-pointer border-0 bg-transparent p-0 font-mono text-sm text-faint hover:text-text focus-visible:rounded-[1px] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-text",
+    className,
+  ]}
+  data-command-palette-open
+  aria-haspopup="dialog"
+  aria-controls="command-palette"
+  aria-label="Open command palette"
+>
+  <kbd data-command-palette-hotkey>⌘K</kbd>
+</button>
+
+<script>
+  const apple = /Mac|iPhone|iPad/.test(navigator.platform);
+  const hotkeyLabel = apple ? "⌘K" : "Ctrl+K";
+  for (const node of document.querySelectorAll("[data-command-palette-hotkey]")) {
+    node.textContent = hotkeyLabel;
+  }
+</script>
+
+<style>
+  kbd {
+    font: inherit;
+  }
+</style>

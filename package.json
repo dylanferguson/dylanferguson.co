@@ -10,22 +10,26 @@
     "check": "ASTRO_TELEMETRY_DISABLED=1 astro check",
     "deploy": "wrangler deploy",
     "dev": "ASTRO_TELEMETRY_DISABLED=1 BUILD_COMMIT=$(git rev-parse --short=7 HEAD) WRITINGS=true astro dev",
-    "format": "oxfmt --write package.json 'data/**/*.json5' 'src/**/*.{astro,css,js,ts,tsx,md,mdx}' 'scripts/**/*.{js,mjs,ts}' 'public/**/*.{css,js,html}'",
-    "lint": "oxlint src scripts",
+    "format": "oxfmt --write package.json playwright.config.ts 'tests/**/*.{ts,mjs}' 'data/**/*.json5' 'src/**/*.{astro,css,js,ts,tsx,svelte,md,mdx}' 'scripts/**/*.{js,mjs,ts}' 'public/**/*.{css,js,html}'",
+    "lint": "oxlint src scripts tests playwright.config.ts",
     "prepare": "git config core.hooksPath .githooks",
     "resume": "bash scripts/resume.sh",
+    "test:e2e": "playwright test",
     "verify": "bash scripts/verify.sh"
   },
   "dependencies": {
     "@astrojs/mdx": "^7.0.5",
     "@astrojs/sitemap": "^3.7.3",
+    "@astrojs/svelte": "^9.0.1",
     "@tailwindcss/vite": "^4.3.3",
     "astro": "^7.2.2",
     "json5": "^2.2.3",
+    "svelte": "^5.57.0",
     "tailwindcss": "^4.3.3"
   },
   "devDependencies": {
     "@astrojs/check": "^0.9.10",
+    "@playwright/test": "^1.63.0",
     "oxfmt": "^0.51.0",
     "oxlint": "^1.78.0",
     "typescript": "^6.0.0",
