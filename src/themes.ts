@@ -6,6 +6,7 @@ export const themes = [
     colorScheme: "light",
     effects: false,
   },
+  { id: "geocities", name: "Geocities", colorScheme: "dark", effects: false },
 ] as const;
 
 export type Theme = (typeof themes)[number];

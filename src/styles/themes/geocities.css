@@ -1,0 +1,238 @@
+@media screen {
+  html:root[data-theme="geocities"] {
+    /* Tokens only reach the command palette, dressed as a Windows 95 dialog. */
+    --color-background: #c0c0c0;
+    --color-text: #000;
+    --color-muted: #404040;
+    --color-faint: #808080;
+    --color-line: #808080;
+    --color-hover: #000080;
+
+    /* A tiled starfield, like a repeating background GIF. */
+    background:
+      radial-gradient(1px 1px at 12px 18px, #fff 99%, transparent),
+      radial-gradient(1px 1px at 61px 83px, #ffc 99%, transparent),
+      radial-gradient(1.5px 1.5px at 94px 37px, #fff 99%, transparent),
+      radial-gradient(1px 1px at 37px 112px, #cff 99%, transparent),
+      radial-gradient(1px 1px at 128px 131px, #fff 99%, transparent), #000033;
+    background-size: 140px 140px;
+
+    body {
+      max-width: 50rem;
+      margin: 0 auto;
+      padding: 0 1rem 2rem;
+      color: #ffff00;
+      background: transparent;
+      font-family: "Comic Sans MS", "Comic Sans", "Chalkboard SE", cursive;
+      text-align: center;
+    }
+
+    body > header::before {
+      content: "🚧 UNDER CONSTRUCTION 🚧" / "";
+      display: block;
+      margin-block: 1rem;
+      padding: 0.35em;
+      border: 3px ridge #c0c0c0;
+      background: repeating-linear-gradient(
+        -45deg,
+        #ffcc00 0 14px,
+        #000 14px 28px
+      );
+      color: #fff;
+      font:
+        bold 1.1rem/1.4 Impact,
+        "Arial Black",
+        sans-serif;
+      letter-spacing: 0.1em;
+      text-shadow:
+        2px 2px 0 #000,
+        -1px -1px 0 #000;
+      animation: geo-blink 1s steps(1) infinite !important;
+    }
+
+    /* The brand: `h1 > a` on the home page, a bare `a` elsewhere. */
+    body > header > :first-child {
+      display: block;
+      margin: 0 0 0.75rem;
+      overflow: hidden;
+      border-block: 2px dashed #ff00ff;
+      font-size: 2rem;
+      font-weight: bold;
+      white-space: nowrap;
+      animation: geo-marquee 12s linear infinite !important;
+    }
+
+    body > header > :first-child,
+    body > header > :first-child a {
+      color: #ff00ff;
+      text-decoration: none;
+      text-shadow: 3px 3px 0 #00ffff;
+    }
+
+    body > header > div,
+    nav {
+      justify-content: center;
+    }
+
+    nav {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5em;
+    }
+
+    nav a:is(:link, :visited),
+    [data-command-palette-open] {
+      margin: 0;
+      padding: 0.2em 0.7em;
+      border: 3px outset #c0c0c0;
+      background: #c0c0c0;
+      color: #000;
+      font:
+        bold 0.9rem Tahoma,
+        "MS Sans Serif",
+        Geneva,
+        sans-serif;
+      text-decoration: none;
+      cursor: pointer;
+    }
+
+    nav a:active,
+    [data-command-palette-open]:active,
+    nav a[aria-current="page"] {
+      border-style: inset;
+    }
+
+    main {
+      display: block;
+      margin-block: 1rem;
+      padding: 1rem;
+      border: 4px ridge #ff00ff;
+      background: rgb(0 0 51 / 0.85);
+      text-align: left;
+    }
+
+    main :where(h1, h2, h3) {
+      color: #00ff00;
+      text-align: center;
+      text-shadow: 2px 2px 0 #ff00ff;
+    }
+
+    main::after {
+      content: "Sign my guestbook ✍️ · Webring: ⟨ prev | random | next ⟩" / "";
+      display: block;
+      margin-top: 1.5rem;
+      color: #00ff00;
+      font-size: 0.85rem;
+      text-align: center;
+    }
+
+    a:link {
+      color: #00ffff;
+    }
+
+    a:visited {
+      color: #ff66ff;
+    }
+
+    a:hover {
+      color: #ff0000;
+      background: #ffff00;
+    }
+
+    body > footer {
+      display: block;
+      margin-top: 1.5rem;
+      color: #fff;
+      font-size: 0.85rem;
+    }
+
+    body > footer::before {
+      content: "Best viewed in Netscape Navigator 4.0 at 800×600" / "";
+      display: block;
+      margin-bottom: 0.5rem;
+      color: #c0c0c0;
+      font-style: italic;
+    }
+
+    /* `all: revert` also drops the orb's film grain, which uses this slot. */
+    body::after {
+      all: revert;
+      content: "You are visitor #000451" / "";
+      display: block;
+      width: max-content;
+      margin: 1.5rem auto 0;
+      padding: 0.2em 0.6em;
+      border: 3px inset #c0c0c0;
+      background: #000;
+      color: #00ff00;
+      font:
+        1rem/1.2 "Courier New",
+        monospace;
+      letter-spacing: 0.15em;
+    }
+
+    ::selection {
+      background: #ff00ff;
+      color: #ffff00;
+    }
+
+    #command-palette {
+      padding-top: 1.6rem;
+      border: 3px outset #c0c0c0;
+      font:
+        0.9rem Tahoma,
+        "MS Sans Serif",
+        Geneva,
+        sans-serif;
+    }
+
+    #command-palette::before {
+      content: "Command Palette" / "";
+      position: absolute;
+      inset: 0 0 auto;
+      padding: 0.2rem 0.4rem;
+      background: linear-gradient(90deg, #000080, #1084d0);
+      color: #fff;
+      font-weight: bold;
+    }
+
+    #command-palette label {
+      margin: 0.4rem;
+      border: 2px inset #c0c0c0;
+      background: #fff;
+    }
+
+    #command-palette [aria-selected="true"] {
+      color: #fff;
+    }
+
+    #command-palette::backdrop {
+      background: rgb(0 128 128 / 0.6);
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      body > header::before,
+      body > header > :first-child {
+        animation: none !important;
+      }
+    }
+  }
+}
+
+/* Starts past the right edge. Ends one box-width left, which clears the name
+   whenever it fits on one line. */
+@keyframes geo-marquee {
+  from {
+    text-indent: 100%;
+  }
+  to {
+    text-indent: -100%;
+  }
+}
+
+@keyframes geo-blink {
+  50% {
+    color: transparent;
+    text-shadow: none;
+  }
+}

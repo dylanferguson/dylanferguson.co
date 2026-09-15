@@ -1,5 +1,7 @@
 @import "tailwindcss";
+@import "./themes/plain-html.css";
 @import "./themes/cs-professor.css";
+@import "./themes/geocities.css";
 /* Tailwind scans the whole project by default, so build scripts get read for
    class names too. Nothing in scripts/ ships to the browser, and a stray
    class-like token there would leak real rules into this bundle — adding a file
