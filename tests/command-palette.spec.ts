@@ -1,5 +1,37 @@
 import { expect, test } from "@playwright/test";
 
+test("a delayed close event preserves a search entered after reopening", async ({
+  page,
+}) => {
+  await page.goto("/");
+  await expect(
+    page.locator("astro-island:has(#command-palette)"),
+  ).not.toHaveAttribute("ssr");
+  await page.keyboard.press("ControlOrMeta+k");
+  await page.evaluate(async () => {
+    const trigger = document.querySelector<HTMLButtonElement>(
+      "[data-command-palette-open]",
+    )!;
+    const search = document.querySelector<HTMLInputElement>(
+      "#command-palette-input",
+    )!;
+    // Native dialog close events arrive after the synchronous interaction.
+    trigger.click();
+    trigger.click();
+    search.value = "Toggle Light/Dark mode";
+    search.dispatchEvent(new Event("input", { bubbles: true }));
+    for (let i = 0; i < 2; i++) {
+      await new Promise<void>((resolve) =>
+        requestAnimationFrame(() => resolve()),
+      );
+    }
+  });
+  const search = page.getByRole("combobox", { name: "Search commands" });
+  await expect(search).toHaveValue("Toggle Light/Dark mode");
+  await search.press("Enter");
+  await expect(page.locator("html")).toHaveCSS("color-scheme", "dark");
+});
+
 test("appearance stays selected when storage is blocked", async ({ page }) => {
   await page.addInitScript(() => {
     Storage.prototype.setItem = () => {
@@ -12,7 +44,7 @@ test("appearance stays selected when storage is blocked", async ({ page }) => {
   ).not.toHaveAttribute("ssr");
 
   const trigger = page.getByRole("button", { name: "Open command palette" });
-  const toggle = page.getByRole("option", { name: "Toggle Light/Dark Mode" });
+  const toggle = page.getByRole("option", { name: "Toggle Light/Dark mode" });
   await trigger.click();
   await toggle.click();
   await expect(page.locator("html")).toHaveCSS("color-scheme", "dark");
@@ -46,13 +78,17 @@ test("keyboard commands change appearance and persist after reload", async ({
   await expect(palette).toBeVisible();
   await expect(search).toBeFocused();
 
-  await search.fill("use");
+  await expect(palette.getByRole("option")).toHaveCount(3);
   await expect(palette.getByRole("option", { selected: true })).toHaveText(
-    "Use Light Mode",
+    "Theme: Default",
   );
   await search.press("ArrowDown");
   await expect(palette.getByRole("option", { selected: true })).toHaveText(
-    "Use Dark Mode",
+    "Theme: CS Professor Website",
+  );
+  await search.press("ArrowDown");
+  await expect(palette.getByRole("option", { selected: true })).toHaveText(
+    "Toggle Light/Dark mode",
   );
   await search.press("Enter");
   await expect(palette).not.toBeVisible();
@@ -84,6 +120,6 @@ test("Escape restores trigger focus and reopening clears the search", async ({
   await expect(search).toBeFocused();
   await expect(search).toHaveValue("");
   await expect(palette.getByRole("option", { selected: true })).toHaveText(
-    "Toggle Light/Dark Mode",
+    "Theme: Default",
   );
 });

@@ -132,6 +132,7 @@
         APPEARANCE_CHANGE_EVENT,
         isDarkAppearance,
       } from "../appearance";
+      import { currentTheme, THEME_CHANGE_EVENT } from "../themes";
 
       interface Dot {
         a?: number;
@@ -558,12 +559,6 @@
           "(prefers-reduced-motion: reduce)",
         ).matches;
 
-        if (reduced) {
-          document.addEventListener(APPEARANCE_CHANGE_EVENT, () => {
-            frame(0.6);
-          });
-        }
-
         canvas.addEventListener("pointerdown", (e: PointerEvent) => {
           dragging = true;
           lastX = e.clientX;
@@ -594,11 +589,6 @@
         canvas.addEventListener("pointerup", endDrag);
         canvas.addEventListener("pointercancel", endDrag);
 
-        if (reduced) {
-          frame(0.6);
-          return;
-        }
-
         let raf = 0;
         let lastT = performance.now();
         function loop() {
@@ -619,15 +609,19 @@
           frame((now / 1000) * SPEED);
           raf = requestAnimationFrame(loop);
         }
-        document.addEventListener("visibilitychange", () => {
-          if (document.visibilityState === "hidden") {
-            cancelAnimationFrame(raf);
-          } else {
+        function syncAnimation() {
+          cancelAnimationFrame(raf);
+          if (document.hidden || !currentTheme().effects) return;
+          if (reduced) frame(0.6);
+          else {
             lastT = performance.now();
             raf = requestAnimationFrame(loop);
           }
-        });
-        raf = requestAnimationFrame(loop);
+        }
+        document.addEventListener("visibilitychange", syncAnimation);
+        document.addEventListener(THEME_CHANGE_EVENT, syncAnimation);
+        document.addEventListener(APPEARANCE_CHANGE_EVENT, syncAnimation);
+        syncAnimation();
       }
 
       const canvas = document.querySelector<HTMLCanvasElement>("[data-orb]");

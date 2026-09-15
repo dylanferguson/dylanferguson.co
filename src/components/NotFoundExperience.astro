@@ -48,6 +48,7 @@ import CommandPaletteTrigger from "./CommandPaletteTrigger.astro";
 </main>
 <script>
   import { APPEARANCE_CHANGE_EVENT } from "../appearance";
+  import { currentTheme, THEME_CHANGE_EVENT } from "../themes";
 
   (() => {
     const mountTarget = document.querySelector<HTMLElement>("#shrug");
@@ -93,7 +94,6 @@ import CommandPaletteTrigger from "./CommandPaletteTrigger.astro";
       canvas.width = Math.round(width * pixelRatio);
       canvas.height = Math.round(height * pixelRatio);
       context.setTransform(pixelRatio, 0, 0, pixelRatio, 0, 0);
-      if (reduceMotion) draw(0);
     }
 
     function drawGlyph(time: number) {
@@ -134,6 +134,7 @@ import CommandPaletteTrigger from "./CommandPaletteTrigger.astro";
     }
 
     function draw(rawTime: number) {
+      if (document.hidden || !currentTheme().effects) return;
       const time = reduceMotion ? 0 : (rawTime / 1000) * 3.6;
       context.fillStyle = getComputedStyle(document.body).backgroundColor;
       context.fillRect(0, 0, width, height);
@@ -141,20 +142,19 @@ import CommandPaletteTrigger from "./CommandPaletteTrigger.astro";
       if (!reduceMotion) frame = requestAnimationFrame(draw);
     }
 
-    addEventListener("resize", resize);
-    document.addEventListener(APPEARANCE_CHANGE_EVENT, () => {
-      if (reduceMotion) draw(0);
-    });
-    document.addEventListener("visibilitychange", () => {
-      if (document.hidden) {
-        cancelAnimationFrame(frame);
-      } else if (!reduceMotion) {
-        frame = requestAnimationFrame(draw);
-      }
-    });
+    function syncAnimation() {
+      cancelAnimationFrame(frame);
+      if (document.hidden || !currentTheme().effects) return;
+      resize();
+      draw(performance.now());
+    }
 
-    resize();
-    draw(performance.now());
+    addEventListener("resize", syncAnimation);
+    document.addEventListener(APPEARANCE_CHANGE_EVENT, syncAnimation);
+    document.addEventListener(THEME_CHANGE_EVENT, syncAnimation);
+    document.addEventListener("visibilitychange", syncAnimation);
+
+    syncAnimation();
     document.fonts?.ready.then(() => {
       if (reduceMotion) draw(0);
     });

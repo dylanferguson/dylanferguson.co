@@ -1,48 +1,29 @@
-import {
-  setPreference,
-  toggleAppearance,
-  type AppearancePreference,
-} from "./appearance";
+import { toggleAppearance } from "./appearance";
+import { currentTheme, setTheme, themes } from "./themes";
 
 export type Command = {
   id: string;
   title: string;
   keywords: readonly string[];
+  available?: () => boolean;
   run: () => void;
 };
 
-function setMode(preference: AppearancePreference): Command["run"] {
-  return () => {
-    setPreference(preference);
-  };
-}
-
 export const siteCommands: readonly Command[] = [
+  ...themes.map((theme) => ({
+    id: `theme-${theme.id}`,
+    title: `Theme: ${theme.name}`,
+    keywords: ["theme", "style", "design"],
+    run: () => setTheme(theme.id),
+  })),
   {
     id: "toggle-appearance",
-    title: "Toggle Light/Dark Mode",
+    title: "Toggle Light/Dark mode",
+    available: () => currentTheme().colorScheme === null,
     keywords: ["theme", "appearance", "colour", "color", "night"],
     run: () => {
       toggleAppearance();
     },
-  },
-  {
-    id: "use-light",
-    title: "Use Light Mode",
-    keywords: ["theme", "appearance", "day"],
-    run: setMode("light"),
-  },
-  {
-    id: "use-dark",
-    title: "Use Dark Mode",
-    keywords: ["theme", "appearance", "night"],
-    run: setMode("dark"),
-  },
-  {
-    id: "use-system",
-    title: "Use System Appearance",
-    keywords: ["theme", "os", "auto", "reset"],
-    run: setMode("system"),
   },
 ];
 
