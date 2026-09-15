@@ -76,8 +76,7 @@ const socialDescription = ogDescription ?? description;
       sizes="180x180"
       href="/apple-touch-icon.png"
     />
-    {/* Last, so crawlers that take the final declaration land on the
-    full-bleed tile rather than a rounded one they would crop. */}
+    {/* Last, so crawlers that take the final declaration get the largest icon. */}
     <link
       rel="icon"
       type="image/png"
