@@ -47,8 +47,7 @@ import CommandPaletteTrigger from "./CommandPaletteTrigger.astro";
   </p>
 </main>
 <script>
-  import { APPEARANCE_CHANGE_EVENT } from "../appearance";
-  import { currentTheme, THEME_CHANGE_EVENT } from "../themes";
+  import { effectsActive, watchEffects } from "../effects";
 
   (() => {
     const mountTarget = document.querySelector<HTMLElement>("#shrug");
@@ -134,7 +133,6 @@ import CommandPaletteTrigger from "./CommandPaletteTrigger.astro";
     }
 
     function draw(rawTime: number) {
-      if (document.hidden || !currentTheme().effects) return;
       const time = reduceMotion ? 0 : (rawTime / 1000) * 3.6;
       context.fillStyle = getComputedStyle(document.body).backgroundColor;
       context.fillRect(0, 0, width, height);
@@ -144,19 +142,15 @@ import CommandPaletteTrigger from "./CommandPaletteTrigger.astro";
 
     function syncAnimation() {
       cancelAnimationFrame(frame);
-      if (document.hidden || !currentTheme().effects) return;
+      if (!effectsActive()) return;
       resize();
       draw(performance.now());
     }
 
     addEventListener("resize", syncAnimation);
-    document.addEventListener(APPEARANCE_CHANGE_EVENT, syncAnimation);
-    document.addEventListener(THEME_CHANGE_EVENT, syncAnimation);
-    document.addEventListener("visibilitychange", syncAnimation);
-
-    syncAnimation();
+    watchEffects(syncAnimation);
     document.fonts?.ready.then(() => {
-      if (reduceMotion) draw(0);
+      if (reduceMotion && effectsActive()) draw(0);
     });
     document.documentElement.classList.add("render-ready");
   })();

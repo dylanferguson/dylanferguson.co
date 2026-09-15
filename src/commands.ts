@@ -10,12 +10,6 @@ export type Command = {
 };
 
 export const siteCommands: readonly Command[] = [
-  ...themes.map((theme) => ({
-    id: `theme-${theme.id}`,
-    title: `Theme: ${theme.name}`,
-    keywords: ["theme", "style", "design"],
-    run: () => setTheme(theme.id),
-  })),
   {
     id: "toggle-appearance",
     title: "Toggle Light/Dark mode",
@@ -25,6 +19,12 @@ export const siteCommands: readonly Command[] = [
       toggleAppearance();
     },
   },
+  ...themes.map((theme) => ({
+    id: `theme-${theme.id}`,
+    title: `Theme: ${theme.name}`,
+    keywords: ["theme", "style", "design"],
+    run: () => setTheme(theme),
+  })),
 ];
 
 export function filterCommands(

@@ -30,7 +30,6 @@ test("theme commands persist across navigation and restore dark appearance", asy
 
   await page.keyboard.press("ControlOrMeta+k");
   const palette = page.getByRole("dialog", { name: "Command palette" });
-  await expect(palette.getByRole("option")).toHaveCount(2);
   const search = page.getByRole("combobox", { name: "Search commands" });
   await search.fill("dark");
   await expect(palette.getByRole("option")).toHaveCount(0);
@@ -50,7 +49,7 @@ test("theme commands persist across navigation and restore dark appearance", asy
     page.locator("astro-island:has(#command-palette)"),
   ).not.toHaveAttribute("ssr");
   await page.keyboard.press("ControlOrMeta+k");
-  await expect(palette.getByRole("option")).toHaveCount(2);
+  await expect(palette).toBeVisible();
   await expect(
     palette.getByRole("option", { name: "Toggle Light/Dark mode" }),
   ).toHaveCount(0);

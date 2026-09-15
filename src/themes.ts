@@ -8,11 +8,11 @@ export const themes = [
   },
 ] as const;
 
-export type ThemeId = (typeof themes)[number]["id"];
+export type Theme = (typeof themes)[number];
 export const THEME_CHANGE_EVENT = "themechange";
 const STORAGE_KEY = "theme";
 
-export function currentTheme() {
+export function currentTheme(): Theme {
   return (
     themes.find(
       (theme) => theme.id === document.documentElement.dataset.theme,
@@ -20,8 +20,7 @@ export function currentTheme() {
   );
 }
 
-export function setTheme(id: ThemeId): void {
-  const theme = themes.find((theme) => theme.id === id) ?? themes[0];
+export function setTheme(theme: Theme): void {
   const root = document.documentElement;
   root.dataset.theme = theme.id;
   if (theme.colorScheme) root.dataset.themeColorScheme = theme.colorScheme;

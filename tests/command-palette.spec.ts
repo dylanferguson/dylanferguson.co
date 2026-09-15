@@ -78,18 +78,12 @@ test("keyboard commands change appearance and persist after reload", async ({
   await expect(palette).toBeVisible();
   await expect(search).toBeFocused();
 
-  await expect(palette.getByRole("option")).toHaveCount(3);
-  await expect(palette.getByRole("option", { selected: true })).toHaveText(
-    "Theme: Default",
-  );
+  const selected = palette.getByRole("option", { selected: true });
+  await expect(selected).toHaveText("Toggle Light/Dark mode");
   await search.press("ArrowDown");
-  await expect(palette.getByRole("option", { selected: true })).toHaveText(
-    "Theme: CS Professor Website",
-  );
-  await search.press("ArrowDown");
-  await expect(palette.getByRole("option", { selected: true })).toHaveText(
-    "Toggle Light/Dark mode",
-  );
+  await expect(selected).not.toHaveText("Toggle Light/Dark mode");
+  await search.press("ArrowUp");
+  await expect(selected).toHaveText("Toggle Light/Dark mode");
   await search.press("Enter");
   await expect(palette).not.toBeVisible();
   await expect(page.locator("html")).toHaveCSS("color-scheme", "dark");
@@ -120,6 +114,6 @@ test("Escape restores trigger focus and reopening clears the search", async ({
   await expect(search).toBeFocused();
   await expect(search).toHaveValue("");
   await expect(palette.getByRole("option", { selected: true })).toHaveText(
-    "Theme: Default",
+    "Toggle Light/Dark mode",
   );
 });

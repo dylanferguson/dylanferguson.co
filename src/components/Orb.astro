@@ -129,10 +129,9 @@
 
     <script>
       import {
-        APPEARANCE_CHANGE_EVENT,
         isDarkAppearance,
       } from "../appearance";
-      import { currentTheme, THEME_CHANGE_EVENT } from "../themes";
+      import { effectsActive, watchEffects } from "../effects";
 
       interface Dot {
         a?: number;
@@ -611,17 +610,14 @@
         }
         function syncAnimation() {
           cancelAnimationFrame(raf);
-          if (document.hidden || !currentTheme().effects) return;
+          if (!effectsActive()) return;
           if (reduced) frame(0.6);
           else {
             lastT = performance.now();
             raf = requestAnimationFrame(loop);
           }
         }
-        document.addEventListener("visibilitychange", syncAnimation);
-        document.addEventListener(THEME_CHANGE_EVENT, syncAnimation);
-        document.addEventListener(APPEARANCE_CHANGE_EVENT, syncAnimation);
-        syncAnimation();
+        watchEffects(syncAnimation);
       }
 
       const canvas = document.querySelector<HTMLCanvasElement>("[data-orb]");
