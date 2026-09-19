@@ -2,6 +2,15 @@
 {
   entries: [
     {
+      title: "How to Unclench",
+      author: "Jonny Miller",
+      url: "https://howtounclench.com/",
+      added: "2026-09-19T06:37:33Z",
+      excerpts: [
+        "The working definition I have for clenching is: unconsciously holding tension in a way that narrows your capacity to feel and respond.",
+      ],
+    },
+    {
       title: "How to Live Given the Certainty of Death",
       author: "Shelly Kagan",
       url: "https://www.youtube.com/watch?v=O8Hu465KL1w",
