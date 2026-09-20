@@ -400,5 +400,18 @@
       ],
       published: "2026-09-05",
     },
+    {
+      type: "link",
+      title: "The Senior Engineer Death Spiral",
+      author: "Sunil Pai",
+      url: "https://sunilpai.dev/posts/the-senior-engineer-death-spiral/",
+      added: "2026-09-20T02:46:54Z",
+      excerpts: [
+        "see, man, the bigger point here is that because of COVID and coding agents and remote work, things that have happened in the last five to ten years, right, you don’t really have the same structure of working next to someone and being given Jira tasks, etc. you have a lot more ownership, and you are unfortunately a little more siloed. so you never want to be in a situation where people don’t know what’s up with you. like, they shouldn’t be saying, “yeah, I don’t know what Sunil’s been doing,” and starting to get concerned, because they might only tell you when it’s too late. you want to be in a position where “Sunil doesn’t shut the fuck up about what he’s working on,” right? again, you don’t have to be obnoxious about it. you have to share your work.",
+        "and the reason you want to do this is you want to move away from an outcome-based mindset to momentum-based. like, you want to build a routine, because momentum is everything in this, and relationships are an even bigger thing in this. and by getting momentum going and fixing your relationships with other people, the thing you get is stamina. and that’s when you realize the real lesson, which is that big projects are not done with big efforts. it’s a big marathon, just slow, steady, incremental work. forget about a weekly basis, like a daily basis, an hourly basis, to the point that it’s muscle memory.",
+        "remember, you are in the reputation-building business, and software is actually downstream of that.",
+      ],
+      published: "2026-09-19",
+    },
   ],
 }
