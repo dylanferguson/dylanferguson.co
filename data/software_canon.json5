@@ -413,5 +413,18 @@
       ],
       published: "2026-09-19",
     },
+    {
+      type: "link",
+      title: "Good System Design",
+      author: "Sean Goedecke",
+      url: "https://www.seangoedecke.com/good-system-design/",
+      added: "2026-10-25T00:00:00Z",
+      excerpts: [
+        "What does good system design look like? I’ve written before that it looks underwhelming. In practice, it looks like nothing going wrong for a long time. You can tell that you’re in the presence of good design if you have thoughts like “huh, this ended up being easier than I expected”, or “I never have to think about this part of the system, it’s fine”. Paradoxically, good design is self-effacing: bad design is often more impressive than good. I’m always suspicious of impressive-looking systems. If a system has distributed-consensus mechanisms, many different forms of event-driven communication, CQRS, and other clever tricks, I wonder if there’s some fundamental bad decision that’s being compensated for (or if the system is just straightforwardly over-designed).",
+        "I’m often alone on this. Engineers look at complex systems with many interesting parts and think “wow, a lot of system design is happening here!” In fact, a complex system usually reflects an absence of good design. I say “usually” because sometimes you do need complex systems. I’ve worked on many systems that earned their complexity. However, a complex system that works always evolves from a simple system that works. Beginning from scratch with a complex system is a really bad idea.",
+        "One thing I’ve learned from my most paranoid colleagues is to log aggressively during unhappy paths. If you’re writing a function that checks a bunch of conditions to see if a user-facing endpoint should respond 422, you should log out the condition that was hit. If you’re writing billing code, you should log every decision made (e.g. “we’re not billing for this event because of X”). Many engineers don’t do this because it adds a bunch of logging boilerplate and makes it hard to write beautifully elegant code, but you should do it anyway. You’ll be happy you did when an important customer is complaining that they’re getting a 422 — even if that customer did something wrong, you still need to figure out what they did wrong for them.",
+      ],
+      published: "2025-06-21",
+    },
   ],
 }
