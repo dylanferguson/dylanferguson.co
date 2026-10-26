@@ -41,7 +41,9 @@ const publishedOn = z
 const sharedFields = {
   title: z.string(),
   author: z.string().optional(),
-  url: z.url(),
+  // Bare z.url() accepts javascript: and data:, and these land straight in an
+  // href, so pin the scheme.
+  url: z.url({ protocol: /^https?$/ }),
   added: addedAt,
   excerpts: z.array(z.string()).optional(),
 };
@@ -79,7 +81,9 @@ const resumeEntry = defineCollection({
     phone: z.string().optional(),
     location: z.string().optional(),
     summary: z.string().optional(),
-    links: z.array(z.object({ label: z.string(), url: z.string() })),
+    links: z.array(
+      z.object({ label: z.string(), url: z.url({ protocol: /^https?$/ }) }),
+    ),
     experience: z.array(
       z.object({
         org: z.string(),

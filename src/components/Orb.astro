@@ -427,7 +427,7 @@
         };
         const forcedName = new URLSearchParams(location.search).get("config");
         const FORCED =
-          forcedName != null && forcedName in CONFIG_NAMES
+          forcedName != null && Object.hasOwn(CONFIG_NAMES, forcedName)
             ? CONFIG_NAMES[forcedName]
             : null;
 
