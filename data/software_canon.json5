@@ -426,5 +426,17 @@
       ],
       published: "2025-06-21",
     },
+    {
+      type: "link",
+      title: "The purpose of a system is what it does (POSIWID)",
+      author: "Nelson Elhage",
+      url: "https://buttondown.com/nelhage/archive/what-is-the-purpose-of-posiwid/",
+      added: "2026-11-08T09:20:30Z",
+      excerpts: [
+        "When trying to reason about a system, especially a complex system containing many interacting subsystems, you must understand it, and its subsystems, in terms of their actual behavior, and not the behavior someone intends or believes them to have.",
+        "When you see a system persistently exhibiting some harmful behavior, consider whether the designers or operators of the system actually intend for it to behave that way, no matter what they claim. If the pattern is persistent enough, you may consider the pattern to be prima facie evidence of hidden intent.",
+      ],
+      published: "2025-04-21",
+    },
   ],
 }
