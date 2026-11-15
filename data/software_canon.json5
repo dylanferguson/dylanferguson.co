@@ -438,5 +438,17 @@
       ],
       published: "2025-04-21",
     },
+    {
+      type: "paper",
+      title: "How Complex Systems Fail",
+      author: "Richard I. Cook",
+      url: "https://how.complexsystems.fail/",
+      added: "2026-11-15T00:00:00Z",
+      excerpts: [
+        "Safety is an emergent property of systems; it does not reside in a person, device or department of an organization or system.",
+      ],
+      published: "1998",
+      published_approximate: true,
+    },
   ],
 }
