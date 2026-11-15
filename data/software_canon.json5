@@ -450,5 +450,20 @@
       published: "1998",
       published_approximate: true,
     },
+    {
+      type: "link",
+      title: "My AI Skeptic Friends Are All Nuts",
+      author: "Thomas Ptacek",
+      url: "https://fly.io/blog/youre-all-nuts/",
+      added: "2026-11-15T01:00:00Z",
+      excerpts: [
+        "As a mid-late career coder, I’ve come to appreciate mediocrity. You should be so lucky as to have it flowing almost effortlessly from a tap.\n\nWe all write mediocre code. Mediocre code: often fine. Not all code is equally important. Some code should be mediocre. Maximum effort on a random unit test? You’re doing something wrong. Your team lead should correct you.\n\nDevelopers all love to preen about code. They worry LLMs lower the “ceiling” for quality. Maybe. But they also raise the “floor”.",
+        "Professional software developers are in the business of solving practical problems for people with code. We are not, in our day jobs, artisans. Steve Jobs was wrong: we do not need to carve the unseen feet in the sculpture. Nobody cares if the logic board traces are pleasingly routed. If anything we build endures, it won’t be because the codebase was beautiful.\n\nBesides, that’s not really what happens. If you’re taking time carefully golfing functions down into graceful, fluent, minimal functional expressions, alarm bells should ring. You’re yak-shaving. The real work has depleted your focus. You’re not building: you’re self-soothing.\n\nWhich, wait for it, is something LLMs are good for. They devour schlep, and clear a path to the important stuff, where your judgement and values really matter.",
+        "I’m confident the designers of the Go programming language didn’t set out to produce the most LLM-legible language in the industry. They succeeded nonetheless. Go has just enough type safety, an extensive standard library, and a culture that prizes (often repetitive) idiom.",
+        "but it’ll never be AGI\nI don’t give a shit.",
+        "but they take-rr jerbs\n\nWe’re a field premised on automating other people’s jobs away. “Productivity gains,” say the economists. You get what that means, right? Fewer people doing the same stuff.\n\nWhen this argument comes up, libertarian-leaning VCs start the chant: lamplighters, creative destruction, new kinds of work. Maybe. But I’m not hypnotized. I have no fucking clue whether we’re going to be better off after LLMs. Things could get a lot worse for us.\n\nLLMs really might displace many software developers. That’s not a high horse we get to ride. Our jobs are just as much in tech’s line of fire as everybody else’s have been for the last 3 decades. We’re not East Coast dockworkers; we won’t stop progress on our own.",
+      ],
+      published: "2025-06-02",
+    },
   ],
 }
